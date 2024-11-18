@@ -10,10 +10,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
-<<<<<<< HEAD
-=======
     "bcryptjs": "^2.4.3",
->>>>>>> 0e9bd09dc72236f89149cb4caa9aee4885622191
     "vue": "^3.5.12",
     "vue-router": "^4.4.5"
   },

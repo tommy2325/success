@@ -1,12 +1,9 @@
 <template>
   <div>
-<<<<<<< HEAD
-=======
     <div v-if="isLoggedIn" class="top-bar">
       <button @click="logout" class="logout-btn">Déconnexion</button>
     </div>
 
->>>>>>> 0e9bd09dc72236f89149cb4caa9aee4885622191
     <div v-if="!isLoggedIn" class="login-container">
       <div class="header">
         <h1>Success</h1>
@@ -26,11 +23,7 @@
         </form>
       </div>
     </div>
-<<<<<<< HEAD
-
-=======
   
->>>>>>> 0e9bd09dc72236f89149cb4caa9aee4885622191
     <Administrateur v-if="isLoggedIn && userRole === 'administrateur'" :username="username" @logout="logout" />
     <Collaborateur v-if="isLoggedIn && userRole === 'collaborateur'" :username="username" @logout="logout" />
   </div>
@@ -42,11 +35,6 @@ import { useRouter } from 'vue-router';
 import { supabase } from './supabase';
 import Administrateur from './components/Administrateur.vue';
 import Collaborateur from './components/Collaborateur.vue';
-<<<<<<< HEAD
- 
-=======
-
->>>>>>> 0e9bd09dc72236f89149cb4caa9aee4885622191
 const username = ref('');
 const password = ref('');
 const isLoggedIn = ref(false);
@@ -84,11 +72,6 @@ const logout = () => {
   password.value = '';
 };
 </script>
-<<<<<<< HEAD
-  
-=======
-
->>>>>>> 0e9bd09dc72236f89149cb4caa9aee4885622191
 <style scoped>
 .login-container {
   display: flex;
