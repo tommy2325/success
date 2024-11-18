@@ -1,50 +1,54 @@
 <template>
   <div>
-    <div class="header">
-      <h1>Accueil Collaborateur</h1>
-      <div class="user-info">
-        <span>{{ username }}</span>
-        <button @click="logout">Déconnexion</button>
-      </div>
-    </div>
-
-    <div class="collaborateur-container">
-      <div class="main-content">
-        <div class="sidebar">
-          <button class="sidebar-btn">Statistiques</button>
-        </div>
-
-        <div class="questionnaire-section">
-          <div class="code-input">
-            <label for="code">CODE :</label>
-            <input type="text" id="code" placeholder="*code*" />
-            <button class="code-btn">OK</button>
-          </div>
-
-          <div class="questionnaire-list">
-            <h3>Questionnaires réalisés :</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Nom</th>
-                  <th>Date</th>
-                  <th>Note</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="passage in passages" :key="passage.id_passer">
-                  <td>{{ passage.nom_questionnaire }}</td>
-                  <td>{{ formatDate(passage.date) }}</td>
-                  <td>{{ passage.note }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+    <div v-if="!showDebutTest">
+      <div class="header">
+        <h1>Accueil Collaborateur</h1>
+        <div class="user-info">
+          <span>{{ username }}</span>
+          <button class="logout-button" @click="logout">Déconnexion</button>
         </div>
       </div>
 
-      <button class="back-btn">Retour</button>
+      <div class="collaborateur-container">
+        <div class="main-content">
+          <div class="sidebar">
+            <button class="sidebar-btn">Statistiques</button>
+          </div>
+
+          <div class="questionnaire-section">
+            <div class="code-input">
+              <label for="code">CODE :</label>
+              <input type="text" id="code" v-model="inputCode" placeholder="*code*" />
+              <button class="code-btn" @click="checkCode">OK</button>
+            </div>
+
+            <div class="questionnaire-list">
+              <h3>Questionnaires réalisés :</h3>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nom</th>
+                    <th>Date</th>
+                    <th>Note</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="passage in passages" :key="passage.id_passer">
+                    <td>{{ passage.nom_questionnaire }}</td>
+                    <td>{{ formatDate(passage.date) }}</td>
+                    <td>{{ passage.note }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <button class="back-btn">Retour</button>
+      </div>
     </div>
+
+    <DebutTest v-if="showDebutTest" />
   </div>
 </template>
 
@@ -52,6 +56,7 @@
 import { ref, onMounted } from 'vue';
 import { supabase } from '../supabase';
 import { defineProps, defineEmits } from 'vue';
+import DebutTest from './DebutTest.vue'; 
 
 const props = defineProps({
   username: {
@@ -61,12 +66,13 @@ const props = defineProps({
 });
 
 const emit = defineEmits();
+const passages = ref([]);
+const inputCode = ref(''); 
+const showDebutTest = ref(false); 
 
 const logout = () => {
   emit('logout');
 };
-
-const passages = ref([]);
 
 const fetchPassages = async () => {
   const { data, error } = await supabase
@@ -94,6 +100,15 @@ const fetchPassages = async () => {
 const formatDate = (date) => {
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
   return new Date(date).toLocaleDateString('fr-FR', options);
+};
+
+// Fonction pour vérifier le code et afficher DebutTest si le code est "1234"
+const checkCode = () => {
+  if (inputCode.value === '1234') {
+    showDebutTest.value = true; // Affiche le composant DebutTest
+  } else {
+    alert('Code incorrect');
+  }
 };
 
 onMounted(() => {
@@ -222,5 +237,18 @@ th, td {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+}
+.logout-button:hover {
+  background-color: #c0392b;
+}
+.logout-button {
+  background-color: #e74c3c;
+  color: white;
+  padding: 8px 16px;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 10px;
 }
 </style>

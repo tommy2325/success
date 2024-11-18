@@ -1,41 +1,33 @@
 <template>
-  <div class="administrateur-container">
-    <header class="admin-header">
-      <h1>Espace Administrateur</h1>
+  <div>
+    <div class="header">
+      <h1>Administrateur</h1>
       <div class="user-info">
         <span>{{ username }}</span>
-        <button @click="logout">Déconnexion</button>
+        <!-- Bouton de déconnexion modifié -->
+        <button class="logout-button" @click="logout">Déconnexion</button>
       </div>
-    </header>
+    </div>
 
-    <nav class="admin-nav">
-      <ul>
-        <li @click="showSection('dashboard')">Dashboard</li>
-        <li @click="showSection('evaluation')">Évaluations</li>
-        <li @click="showSection('questionnaires')">Questionnaires</li>
-      </ul>
-    </nav>
+    <div class="main-actions">
+      <button @click="loadComponent('utilisateurs')">Utilisateurs</button>
+      <button @click="loadComponent('questionnaires')">Questionnaires</button>
+      <button @click="loadComponent('dashboard')">Dashboard</button>
+    </div>
 
-    <div class="admin-content">
-      <div v-if="currentSection === 'dashboard'">
-        <h2>Dashboard</h2>
-        <!-- Contenu relatif au dashboard -->
-      </div>
-      <div v-if="currentSection === 'evaluation'">
-        <h2>Évaluations</h2>
-        <!-- Contenu relatif aux évaluations -->
-      </div>
-      <div v-if="currentSection === 'questionnaires'">
-        <h2>Questionnaires</h2>
-        <!-- Contenu relatif aux questionnaires -->
-      </div>
+    <div class="component-container">
+      <Utilisateur v-if="currentComponent === 'utilisateurs'" />
+      <Questionnaires v-if="currentComponent === 'questionnaires'" />
+      <Dashboard v-if="currentComponent === 'dashboard'" />
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
-import { defineProps, defineEmits } from 'vue';
+import Utilisateur from './Utilisateur.vue';
+import Questionnaires from './Questionnaires.vue';
+import Dashboard from './Dashboard.vue';
 
 const props = defineProps({
   username: {
@@ -45,54 +37,91 @@ const props = defineProps({
 });
 
 const emit = defineEmits();
-const currentSection = ref('dashboard');
+const currentComponent = ref(null);
 
-const showSection = (section) => {
-  currentSection.value = section;
+const loadComponent = (componentName) => {
+  currentComponent.value = componentName;
 };
 
+// Logique de déconnexion (vous pouvez ajouter ici votre logique de déconnexion)
 const logout = () => {
-  emit('logout'); 
+  emit('logout');
 };
 </script>
 
 <style scoped>
-
-.administrateur-container {
+.header {
+  background-color: #c59edb;
+  width: 100%;
   padding: 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.admin-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.header h1 {
+  margin: 0;
+  color: white;
+  font-size: 2rem;
+  text-align: center;
+  flex-grow: 1;
 }
 
 .user-info {
   display: flex;
   align-items: center;
+  position: absolute;
+  top: 20px;
+  right: 20px;
 }
 
 .user-info span {
-  margin-right: 20px;
+  margin-right: 10px;
+  color: white;
+  font-size: 1rem;
 }
 
-.admin-nav {
-  margin-top: 20px;
-}
-
-.admin-nav ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-.admin-nav li {
-  display: inline;
-  margin-right: 20px;
+.logout-button {
+  background-color: #e74c3c;
+  color: white;
+  padding: 8px 16px;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
   cursor: pointer;
+  margin-left: 10px;
 }
 
-.admin-content {
-  margin-top: 30px;
+.logout-button:hover {
+  background-color: #c0392b;
+}
+
+.main-actions {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 100px;
+}
+
+button {
+  background-color: #b48ac6;
+  color: white;
+  padding: 20px 40px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 24px;
+}
+
+button:hover {
+  background-color: #b48ac6;
+}
+
+.component-container {
+  margin-top: 120px;
+  text-align: center;
 }
 </style>
