@@ -192,7 +192,8 @@ button {
   font-size: 1rem;
   border-radius: 5px;
   cursor: pointer;
-  margin-top: 10px;
+  margin: 5px;
+  margin-left: 5px;
 }
 
 button:hover {
