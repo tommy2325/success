@@ -1,5 +1,6 @@
 <template>
   <div>
+<<<<<<< HEAD
     <div class="header">
       <h1>Accueil Collaborateur</h1>
       <div class="user-info">
@@ -45,6 +46,57 @@
 
       <button class="back-btn">Retour</button>
     </div>
+=======
+    <div v-if="!showDebutTest">
+      <div class="header">
+        <h1>Accueil Collaborateur</h1>
+        <div class="user-info">
+          <span>{{ username }}</span>
+          <button class="logout-button" @click="logout">Déconnexion</button>
+        </div>
+      </div>
+
+      <div class="collaborateur-container">
+        <div class="main-content">
+          <div class="sidebar">
+            <button class="sidebar-btn">Statistiques</button>
+          </div>
+
+          <div class="questionnaire-section">
+            <div class="code-input">
+              <label for="code">CODE :</label>
+              <input type="text" id="code" v-model="inputCode" placeholder="*code*" />
+              <button class="code-btn" @click="checkCode">OK</button>
+            </div>
+
+            <div class="questionnaire-list">
+              <h3>Questionnaires réalisés :</h3>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nom</th>
+                    <th>Date</th>
+                    <th>Note</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="passage in passages" :key="passage.id_passer">
+                    <td>{{ passage.nom_questionnaire }}</td>
+                    <td>{{ formatDate(passage.date) }}</td>
+                    <td>{{ passage.note }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <button class="back-btn">Retour</button>
+      </div>
+    </div>
+
+    <DebutTest v-if="showDebutTest" />
+>>>>>>> 0e9bd09dc72236f89149cb4caa9aee4885622191
   </div>
 </template>
 
@@ -52,6 +104,10 @@
 import { ref, onMounted } from 'vue';
 import { supabase } from '../supabase';
 import { defineProps, defineEmits } from 'vue';
+<<<<<<< HEAD
+=======
+import DebutTest from './DebutTest.vue'; 
+>>>>>>> 0e9bd09dc72236f89149cb4caa9aee4885622191
 
 const props = defineProps({
   username: {
@@ -61,21 +117,37 @@ const props = defineProps({
 });
 
 const emit = defineEmits();
+<<<<<<< HEAD
+=======
+const passages = ref([]);
+const inputCode = ref(''); 
+const showDebutTest = ref(false); 
+>>>>>>> 0e9bd09dc72236f89149cb4caa9aee4885622191
 
 const logout = () => {
   emit('logout');
 };
 
+<<<<<<< HEAD
 const passages = ref([]);
 
 const fetchPassages = async () => {
   const { data, error } = await supabase
     .from('Passer')
+=======
+const fetchPassages = async () => {
+  const { data, error } = await supabase
+    .from('passer')
+>>>>>>> 0e9bd09dc72236f89149cb4caa9aee4885622191
     .select(`
       id_passer,
       date,
       note,
+<<<<<<< HEAD
       Questionnaire (nom)
+=======
+      questionnaire (nom)
+>>>>>>> 0e9bd09dc72236f89149cb4caa9aee4885622191
     `)
     .order('date', { ascending: false });
 
@@ -86,7 +158,11 @@ const fetchPassages = async () => {
       id_passer: passage.id_passer,
       date: passage.date,
       note: passage.note,
+<<<<<<< HEAD
       nom_questionnaire: passage.Questionnaire.nom
+=======
+      nom_questionnaire: passage.questionnaire.nom
+>>>>>>> 0e9bd09dc72236f89149cb4caa9aee4885622191
     }));
   }
 };
@@ -96,6 +172,29 @@ const formatDate = (date) => {
   return new Date(date).toLocaleDateString('fr-FR', options);
 };
 
+<<<<<<< HEAD
+=======
+// Nouvelle fonction checkCode avec validation dynamique du code depuis Supabase
+const checkCode = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('questionnaire')
+      .select('code')
+      .eq('code', inputCode.value)
+      .single();
+
+    if (error || !data) {
+      alert('Code incorrect');
+    } else {
+      showDebutTest.value = true; // Affiche le composant DebutTest si le code est valide
+    }
+  } catch (error) {
+    console.error("Erreur lors de la vérification du code :", error);
+    alert('Erreur lors de la vérification du code');
+  }
+};
+
+>>>>>>> 0e9bd09dc72236f89149cb4caa9aee4885622191
 onMounted(() => {
   fetchPassages();
 });
@@ -104,7 +203,11 @@ onMounted(() => {
 <style scoped>
 .header {
   background-color: #c59edb;
+<<<<<<< HEAD
   width: 100%;
+=======
+  width: 98%;
+>>>>>>> 0e9bd09dc72236f89149cb4caa9aee4885622191
   padding: 20px;
   position: fixed;
   top: 0;
@@ -223,4 +326,20 @@ th, td {
   border-radius: 5px;
   cursor: pointer;
 }
+<<<<<<< HEAD
+=======
+.logout-button:hover {
+  background-color: #c0392b;
+}
+.logout-button {
+  background-color: #e74c3c;
+  color: white;
+  padding: 8px 16px;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+>>>>>>> 0e9bd09dc72236f89149cb4caa9aee4885622191
 </style>
