@@ -1,36 +1,4 @@
 <template>
-<<<<<<< HEAD
-  <div class="administrateur-container">
-    <header class="admin-header">
-      <h1>Espace Administrateur</h1>
-      <div class="user-info">
-        <span>{{ username }}</span>
-        <button @click="logout">Déconnexion</button>
-      </div>
-    </header>
-
-    <nav class="admin-nav">
-      <ul>
-        <li @click="showSection('dashboard')">Dashboard</li>
-        <li @click="showSection('evaluation')">Évaluations</li>
-        <li @click="showSection('questionnaires')">Questionnaires</li>
-      </ul>
-    </nav>
-
-    <div class="admin-content">
-      <div v-if="currentSection === 'dashboard'">
-        <h2>Dashboard</h2>
-        <!-- Contenu relatif au dashboard -->
-      </div>
-      <div v-if="currentSection === 'evaluation'">
-        <h2>Évaluations</h2>
-        <!-- Contenu relatif aux évaluations -->
-      </div>
-      <div v-if="currentSection === 'questionnaires'">
-        <h2>Questionnaires</h2>
-        <!-- Contenu relatif aux questionnaires -->
-      </div>
-=======
   <div>
     <div class="header">
       <h1>Administrateur</h1>
@@ -51,20 +19,15 @@
       <Utilisateur v-if="currentComponent === 'utilisateurs'" />
       <Questionnaires v-if="currentComponent === 'questionnaires'" />
       <Dashboard v-if="currentComponent === 'dashboard'" />
->>>>>>> 0e9bd09dc72236f89149cb4caa9aee4885622191
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
-<<<<<<< HEAD
-import { defineProps, defineEmits } from 'vue';
-=======
 import Utilisateur from './Utilisateur.vue';
 import Questionnaires from './Questionnaires.vue';
 import Dashboard from './Dashboard.vue';
->>>>>>> 0e9bd09dc72236f89149cb4caa9aee4885622191
 
 const props = defineProps({
   username: {
@@ -74,16 +37,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits();
-<<<<<<< HEAD
-const currentSection = ref('dashboard');
-
-const showSection = (section) => {
-  currentSection.value = section;
-};
-
-const logout = () => {
-  emit('logout'); 
-=======
 const currentComponent = ref(null);
 
 const loadComponent = (componentName) => {
@@ -93,22 +46,10 @@ const loadComponent = (componentName) => {
 // Logique de déconnexion (vous pouvez ajouter ici votre logique de déconnexion)
 const logout = () => {
   emit('logout');
->>>>>>> 0e9bd09dc72236f89149cb4caa9aee4885622191
 };
 </script>
 
 <style scoped>
-<<<<<<< HEAD
-
-.administrateur-container {
-  padding: 20px;
-}
-
-.admin-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-=======
 .header {
   background-color: #c59edb;
   width:98%;
@@ -127,37 +68,11 @@ const logout = () => {
   font-size: 2rem;
   text-align: center;
   flex-grow: 1;
->>>>>>> 0e9bd09dc72236f89149cb4caa9aee4885622191
 }
 
 .user-info {
   display: flex;
   align-items: center;
-<<<<<<< HEAD
-}
-
-.user-info span {
-  margin-right: 20px;
-}
-
-.admin-nav {
-  margin-top: 20px;
-}
-
-.admin-nav ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-.admin-nav li {
-  display: inline;
-  margin-right: 20px;
-  cursor: pointer;
-}
-
-.admin-content {
-  margin-top: 30px;
-=======
   position: absolute;
   top: 20px;
   right: 20px;
@@ -208,6 +123,5 @@ button:hover {
 .component-container {
   margin-top: 120px;
   text-align: center;
->>>>>>> 0e9bd09dc72236f89149cb4caa9aee4885622191
 }
 </style>
