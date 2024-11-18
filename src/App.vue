@@ -35,7 +35,6 @@ import { useRouter } from 'vue-router';
 import { supabase } from './supabase';
 import Administrateur from './components/Administrateur.vue';
 import Collaborateur from './components/Collaborateur.vue';
-
 const username = ref('');
 const password = ref('');
 const isLoggedIn = ref(false);
@@ -73,7 +72,6 @@ const logout = () => {
   password.value = '';
 };
 </script>
-
 <style scoped>
 .login-container {
   display: flex;
