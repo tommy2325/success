@@ -7,6 +7,16 @@
     <section>
       <button @click="showCreationForm">Créer un utilisateur</button>
 
+      <!-- Champ de recherche -->
+      <div>
+        <input
+          type="text"
+          v-model="searchQuery"
+          placeholder="Rechercher un utilisateur par pseudo"
+          @input="searchUser"
+        />
+      </div>
+
       <div v-if="showCreation">
         <CreationU @refresh="fetchUtilisateurs" @cancel="hideCreationForm" />
       </div>
@@ -15,18 +25,18 @@
         <thead>
           <tr>
             <th>
-              <!-- "Tout cocher" : coche/décoche toutes les cases -->
               <input type="checkbox" v-model="selectAll" @change="toggleSelectAll" />
             </th>
             <th>Nom d'utilisateur</th>
             <th>Nom</th>
             <th>Email</th>
             <th>Groupe</th>
+            <th>Mot de passe</th>
             <th>Options</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(utilisateur, index) in utilisateurs" :key="utilisateur.id">
+          <tr v-for="(utilisateur, index) in filteredUtilisateurs" :key="utilisateur.id">
             <td>
               <input
                 type="checkbox"
@@ -38,6 +48,7 @@
             <td>{{ utilisateur.nom }}</td>
             <td>{{ utilisateur.email }}</td>
             <td>{{ utilisateur.appartenir[0]?.groupe.nom || 'N/A' }}</td>
+            <td>{{ utilisateur.mot_de_passe }}</td>
             <td>
               <button @click="editUser(utilisateur)">Modifier</button>
               <button @click="confirmDeleteUser(utilisateur)">Supprimer</button>
@@ -54,8 +65,13 @@
         <label for="editNom">Nom d'utilisateur:</label>
         <input type="text" v-model="editUtilisateur.pseudo" id="editNom" />
 
-        <label for="editEmail">Email:</label>
-        <input type="email" v-model="editUtilisateur.email" id="editEmail" />
+        <label for="editPassword">Mot de passe:</label>
+        <input type="password" v-model="editUtilisateur.mot_de_passe" id="editPassword" />
+
+        <label for="editGroupe">Groupe:</label>
+        <select v-model="editUtilisateur.groupe_id" id="editGroupe">
+          <option v-for="groupe in groupes" :key="groupe.id" :value="groupe.id">{{ groupe.nom }}</option>
+        </select>
 
         <button @click="updateUser">Mettre à jour</button>
         <button @click="closeEditModal">Annuler</button>
@@ -88,11 +104,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { supabase } from "../supabase";
 import CreationU from "./CreationU.vue";
 
 const utilisateurs = ref([]);
+const groupes = ref([]);
 const showCreation = ref(false);
 const showEditModal = ref(false);
 const showDeleteModal = ref(false);
@@ -102,6 +119,7 @@ const editUtilisateur = ref({});
 const userToDelete = ref(null);
 const selectAll = ref(false); // Case pour "Tout cocher"
 const selectedUsers = ref([]); // Liste des utilisateurs sélectionnés
+const searchQuery = ref(""); // Valeur pour la recherche
 
 // Fonction pour récupérer les utilisateurs
 const fetchUtilisateurs = async () => {
@@ -112,6 +130,16 @@ const fetchUtilisateurs = async () => {
     console.error("Erreur lors de la récupération des utilisateurs:", error);
   } else {
     utilisateurs.value = data;
+  }
+};
+
+// Fonction pour récupérer les groupes
+const fetchGroupes = async () => {
+  const { data, error } = await supabase.from("groupe").select("*");
+  if (error) {
+    console.error("Erreur lors de la récupération des groupes:", error);
+  } else {
+    groupes.value = data;
   }
 };
 
@@ -138,16 +166,20 @@ const closeEditModal = () => {
 
 // Fonction pour mettre à jour un utilisateur
 const updateUser = async () => {
+  console.log("Tentative de mise à jour de l'utilisateur:", editUtilisateur.value);
+
   const { error } = await supabase
     .from("utilisateur")
     .update({
       pseudo: editUtilisateur.value.pseudo,
-      email: editUtilisateur.value.email,
+      mot_de_passe: editUtilisateur.value.mot_de_passe,
+      groupe_id: editUtilisateur.value.groupe_id,
     })
     .eq("id", editUtilisateur.value.id);
 
   if (error) {
-    console.error("Erreur lors de la mise à jour de l'utilisateur:", error);
+    console.error("Erreur lors de la mise à jour de l'utilisateur:", error.message);
+    alert("Une erreur est survenue lors de la mise à jour de l'utilisateur.");
   } else {
     fetchUtilisateurs();
     closeEditModal();
@@ -208,9 +240,25 @@ const toggleSelectAll = () => {
   }
 };
 
-// Au montage du composant, on récupère les utilisateurs
+// Fonction de recherche
+const searchUser = () => {
+  // Met à jour la liste des utilisateurs filtrés à chaque changement dans le champ de recherche
+  filteredUtilisateurs.value = utilisateurs.value.filter((utilisateur) =>
+    utilisateur.pseudo.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+};
+
+// Utilisateur filtré en fonction de la recherche
+const filteredUtilisateurs = computed(() => {
+  return utilisateurs.value.filter((utilisateur) =>
+    utilisateur.pseudo.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+});
+
+// Au montage du composant, on récupère les utilisateurs et les groupes
 onMounted(() => {
   fetchUtilisateurs();
+  fetchGroupes();
 });
 </script>
 
@@ -244,18 +292,15 @@ table {
   margin-top: 20px;
 }
 
-table th, table td {
-  border: 1px solid #ccc;
-  padding: 10px;
+table th,
+table td {
+  border: 1px solid #ddd;
+  padding: 8px;
   text-align: left;
 }
 
-.data-table th {
-  background-color: #f0f0f0;
-}
-
-.data-table tr:nth-child(even) {
-  background-color: #f9f9f9;
+input[type="checkbox"] {
+  cursor: pointer;
 }
 
 .modal {
@@ -273,24 +318,19 @@ table th, table td {
 .modal-content {
   background-color: white;
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 10px;
   width: 300px;
-  margin-left: 5px;
 }
 
-.modal button {
-  background-color: #c59edb;
-}
-
-.modal button:hover {
-  background-color: #b48ac6;
-}
-
-input {
+input[type="text"],
+input[type="password"],
+select {
   width: 100%;
-  padding: 10px;
+  padding: 8px;
+  margin-bottom: 10px;
+}
+
+input[type="text"] {
   margin-top: 10px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
 }
 </style>

@@ -12,7 +12,18 @@
         <CreationQ @refresh="fetchQuestionnaires" @cancel="hideCreationForm" />
       </div>
 
-      <table v-else class="data-table">
+      <div>
+        <!-- Recherche par nom -->
+        <input 
+          v-model="searchQuery" 
+          type="text" 
+          placeholder="Rechercher par nom..."
+          @input="filterQuestionnaires"
+        />
+      </div>
+
+      <!-- Affichage de la table des questionnaires uniquement si showCreation est false -->
+      <table v-if="!showCreation" class="data-table">
         <thead>
           <tr>
             <th>
@@ -26,7 +37,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(questionnaire, index) in questionnaires" :key="questionnaire.id">
+          <tr v-for="(questionnaire, index) in filteredQuestionnaires" :key="questionnaire.id">
             <td>
               <input 
                 type="checkbox" 
@@ -55,9 +66,11 @@ import { supabase } from '../supabase';
 import CreationQ from './CreationQ.vue';
 
 const questionnaires = ref([]);
+const filteredQuestionnaires = ref([]);
 const showCreation = ref(false);
 const selectAll = ref(false);
 const selectedQuestionnaires = ref([]);
+const searchQuery = ref('');
 
 const fetchQuestionnaires = async () => {
   const { data, error } = await supabase.from('questionnaire').select('*');
@@ -65,6 +78,7 @@ const fetchQuestionnaires = async () => {
     console.error('Erreur lors de la récupération des questionnaires:', error);
   } else {
     questionnaires.value = data;
+    filteredQuestionnaires.value = data; // Initialisation avec tous les questionnaires
   }
 };
 
@@ -99,6 +113,13 @@ const toggleQuestionnaireSelection = (id) => {
     selectedQuestionnaires.value.push(id);
   }
   selectAll.value = questionnaires.value.length === selectedQuestionnaires.value.length;
+};
+
+// Fonction de filtrage des questionnaires
+const filterQuestionnaires = () => {
+  filteredQuestionnaires.value = questionnaires.value.filter((questionnaire) => 
+    questionnaire.nom.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
 };
 
 onMounted(() => {
@@ -147,5 +168,13 @@ table th, table td {
 
 .data-table tr:nth-child(even) {
   background-color: #f9f9f9;
+}
+
+input[type="text"] {
+  padding: 10px;
+  margin-top: 10px;
+  width: 200px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
 </style>

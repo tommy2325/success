@@ -63,7 +63,6 @@ const fetchGroupes = async () => {
   }
 };
 
-// Récupérer les rôles pour le groupe sélectionné
 const fetchRoles = async () => {
   const selectedGroup = groupes.value.find(g => g.id_groupe === user.value.groupe);
   roles.value = selectedGroup ? [selectedGroup.role] : [];
@@ -73,7 +72,6 @@ onMounted(() => {
   fetchGroupes();
 });
 
-// Fonction pour créer un utilisateur
 const createUser = async () => {
   if (user.value.mot_de_passe !== user.value.confirmation_mot_de_passe) {
     alert('Les mots de passe ne correspondent pas.');
@@ -81,15 +79,13 @@ const createUser = async () => {
   }
 
   try {
-    // Hachage du mot de passe avant l'insertion
     const hashedPassword = await bcrypt.hash(user.value.mot_de_passe, 10);
 
-    // Insertion de l'utilisateur dans la table "utilisateur"
     const { data: userData, error: userError } = await supabase
-      .from('utilisateur')  // Table "utilisateur" en minuscules
+      .from('utilisateur')  
       .insert([{
-        pseudo: user.value.pseudo,  // "pseudo" en minuscules
-        mot_de_passe: hashedPassword  // "mot_de_passe" en minuscules
+        pseudo: user.value.pseudo, 
+        mot_de_passe: hashedPassword 
       }]);
 
     if (userError) {
@@ -98,7 +94,6 @@ const createUser = async () => {
       return;
     }
 
-    // Vérifiez que userData contient des données avant d'accéder à l'ID de l'utilisateur
     if (!userData || !userData[0]) {
       console.error('Aucune donnée retournée pour l\'utilisateur');
       alert('Aucune donnée retournée lors de la création de l\'utilisateur.');
@@ -107,7 +102,6 @@ const createUser = async () => {
 
     const userId = userData[0].id_utilisateur;
 
-    // Insertion de l'association utilisateur-groupe dans la table "appartenir"
     const { error: groupError } = await supabase
       .from('appartenir')
       .insert([{
@@ -121,10 +115,9 @@ const createUser = async () => {
       return;
     }
 
-    // Réinitialise les champs du formulaire
     user.value = { pseudo: '', mot_de_passe: '', confirmation_mot_de_passe: '', groupe: null, role: '' };
-    emit('refresh'); // Actualise la liste des utilisateurs dans la vue principale
-    emit('cancel'); // Ferme le pop-up après la création réussie
+    emit('refresh'); 
+    emit('cancel');
   } catch (error) {
     console.error('Erreur lors de la création de l\'utilisateur:', error);
     alert('Une erreur s\'est produite lors de la création de l\'utilisateur: ' + error.message);

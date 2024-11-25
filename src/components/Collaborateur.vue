@@ -48,7 +48,7 @@
       </div>
     </div>
 
-    <DebutTest v-if="showDebutTest" />
+    <DebutTest v-if="showDebutTest" :username="username" :questionnaire="questionnaireData" />
   </div>
 </template>
 
@@ -67,8 +67,9 @@ const props = defineProps({
 
 const emit = defineEmits();
 const passages = ref([]);
-const inputCode = ref(''); 
-const showDebutTest = ref(false); 
+const inputCode = ref('');
+const showDebutTest = ref(false);
+const questionnaireData = ref(null);
 
 const logout = () => {
   emit('logout');
@@ -102,18 +103,19 @@ const formatDate = (date) => {
   return new Date(date).toLocaleDateString('fr-FR', options);
 };
 
-// Nouvelle fonction checkCode avec validation dynamique du code depuis Supabase
+// Nouvelle fonction checkCode avec récupération des données du questionnaire
 const checkCode = async () => {
   try {
     const { data, error } = await supabase
       .from('questionnaire')
-      .select('code')
+      .select('id_questionnaire, nom, temps_de_passage, code')
       .eq('code', inputCode.value)
       .single();
 
     if (error || !data) {
       alert('Code incorrect');
     } else {
+      questionnaireData.value = data; // Sauvegarde les données du questionnaire
       showDebutTest.value = true; // Affiche le composant DebutTest si le code est valide
     }
   } catch (error) {
@@ -249,9 +251,7 @@ th, td {
   border-radius: 5px;
   cursor: pointer;
 }
-.logout-button:hover {
-  background-color: #c0392b;
-}
+
 .logout-button {
   background-color: #e74c3c;
   color: white;
@@ -261,5 +261,9 @@ th, td {
   border-radius: 5px;
   cursor: pointer;
   margin-left: 10px;
+}
+
+.logout-button:hover {
+  background-color: #c0392b;
 }
 </style>
