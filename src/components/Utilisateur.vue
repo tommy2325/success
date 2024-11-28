@@ -7,6 +7,7 @@
     <section>
       <div class="button-group">
         <button @click="showCreationForm">Créer un utilisateur</button>
+        <button @click="showCreationGroupForm">Créer un groupe</button>
         <button v-if="selectedUsers.length >= 2" @click="confirmDeleteSelectedUsers">Supprimer sélectionnés</button>
       </div>
 
@@ -21,6 +22,10 @@
 
       <div v-if="showCreation">
         <CreationU @refresh="fetchUtilisateurs" @cancel="hideCreationForm" />
+      </div>
+
+      <div v-if="showCreationGroup">
+        <CreationG @refresh="fetchGroupes" @cancel="hideCreationGroupForm" />
       </div>
 
       <table v-else class="data-table">
@@ -95,10 +100,12 @@ import { ref, onMounted, computed } from "vue";
 import bcrypt from 'bcryptjs';
 import { supabase } from "../supabase";
 import CreationU from "./CreationU.vue";
+import CreationG from "./CreationG.vue";
 
 const utilisateurs = ref([]);
 const groupes = ref([]);
 const showCreation = ref(false);
+const showCreationGroup = ref(false);
 const showEditModal = ref(false);
 const showConfirmModal = ref(false);
 const editUtilisateur = ref({});
@@ -138,6 +145,16 @@ const showCreationForm = () => {
 // Fonction pour cacher le formulaire de création
 const hideCreationForm = () => {
   showCreation.value = false;
+};
+
+// Fonction pour afficher le formulaire de création de groupe
+const showCreationGroupForm = () => {
+  showCreationGroup.value = true;
+};
+
+// Fonction pour cacher le formulaire de création de groupe
+const hideCreationGroupForm = () => {
+  showCreationGroup.value = false;
 };
 
 // Fonction pour modifier un utilisateur

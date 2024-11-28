@@ -5,6 +5,7 @@ import Administrateur from '../components/Administrateur.vue';
 import Utilisateur from '../components/Utilisateur.vue';
 import Questionnaires from '../components/Questionnaires.vue';
 import Dashboard from '../components/Dashboard.vue';
+import EditQuestions from '../components/EditQuestions.vue';
 
 const routes = [
   {
@@ -39,28 +40,17 @@ const routes = [
     name: 'Dashboard',
     component: Dashboard,
   },
+  {
+    path: '/edit-questions/:questionnaireId',
+    name: 'EditQuestions',
+    component: EditQuestions,
+    props: true,
+  },
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
-});
-
-router.beforeEach((to, from, next) => {
-  if (to.path === '/' && to.query.code) {
-    const code = to.query.code;
-
-    if (code === '1234') {
-      next({ name: 'Collaborateur', query: { username: 'Collaborateur' } });
-    } else if (code === 'admin') {
-      next({ name: 'Administrateur', query: { username: 'Administrateur' } });
-    } else {
-      alert("Code incorrect");
-      next(false);
-    }
-  } else {
-    next();
-  }
 });
 
 export default router;
