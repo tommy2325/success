@@ -1,14 +1,17 @@
 <template>
   <div>
+    <!-- Header commun -->
     <div class="header">
-      <h1>Début du Test</h1>
+      <h1 v-if="!showEvaluation">Début du Test</h1>
+      <h1 v-else>Évaluation</h1>
       <div class="user-info">
         <span>{{ username }}</span>
-        <button @click="goBack">Retour</button>
+        <button @click="goBack" v-if="!showEvaluation">Retour</button>
       </div>
     </div>
 
-    <div class="test-info" v-if="questionnaire">
+    <!-- Contenu principal -->
+    <div v-if="!showEvaluation" class="test-info">
       <h3>Nom du questionnaire :</h3>
       <p>{{ questionnaire.nom }}</p>
       <h3>Temps du questionnaire :</h3>
@@ -16,14 +19,24 @@
       <h3>Note sur :</h3>
       <p>{{ totalPoints }} points</p>
 
-      <button class="start-btn">Démarrer</button>
+      <button class="start-btn" @click="startEvaluation">Démarrer</button>
     </div>
+
+    <!-- Composant Evaluation -->
+    <Evaluation 
+      v-if="showEvaluation" 
+      :username="username" 
+      :questionnaire="questionnaire"
+    />
   </div>
 </template>
 
 <script setup>
 import { defineProps, onMounted, ref } from 'vue';
+import { supabase } from '../supabase';
+import Evaluation from './Evaluation.vue'; // Import du composant Evaluation
 
+// Propriétés
 const props = defineProps({
   username: {
     type: String,
@@ -35,11 +48,13 @@ const props = defineProps({
   }
 });
 
+// Variables réactives
 const totalPoints = ref(0);
+const showEvaluation = ref(false);
 
+// Chargement des points total à l'ouverture
 onMounted(async () => {
   try {
-    // Calcul de la note totale basée sur les questions du questionnaire
     const { data, error } = await supabase
       .from('question')
       .select('points')
@@ -55,12 +70,18 @@ onMounted(async () => {
   }
 });
 
+// Retour à la page précédente
 const goBack = () => {
   history.back();
+};
+
+const startEvaluation = () => {
+  showEvaluation.value = true;
 };
 </script>
 
 <style scoped>
+/* Header commun */
 .header {
   background-color: #c59edb;
   width: 100%;
@@ -81,9 +102,28 @@ const goBack = () => {
   text-align: center;
 }
 
+/* Bouton Retour */
+.header .user-info button {
+  background-color: white;
+  color: #c59edb;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.header .user-info button:hover {
+  background-color: #e7d7f3;
+}
+
+/* Informations du test */
 .test-info {
   margin-top: 80px;
   text-align: center;
+}
+
+.test-info h3 {
+  color: #333;
 }
 
 .start-btn {
@@ -91,6 +131,12 @@ const goBack = () => {
   background-color: #c59edb;
   color: white;
   border: none;
+  border-radius: 5px;
   cursor: pointer;
+  margin-top: 20px;
+}
+
+.start-btn:hover {
+  background-color: #a87ac4;
 }
 </style>

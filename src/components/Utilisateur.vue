@@ -5,9 +5,11 @@
     </header>
 
     <section>
-      <button @click="showCreationForm">Créer un utilisateur</button>
+      <div class="button-group">
+        <button @click="showCreationForm">Créer un utilisateur</button>
+        <button v-if="selectedUsers.length >= 2" @click="confirmDeleteSelectedUsers">Supprimer sélectionnés</button>
+      </div>
 
-      <!-- Champ de recherche -->
       <div>
         <input
           type="text"
@@ -28,27 +30,23 @@
               <input type="checkbox" v-model="selectAll" @change="toggleSelectAll" />
             </th>
             <th>Nom d'utilisateur</th>
-            <th>Nom</th>
-            <th>Email</th>
             <th>Groupe</th>
-            <th>Mot de passe</th>
+            <th>Rôle</th>
             <th>Options</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(utilisateur, index) in filteredUtilisateurs" :key="utilisateur.id">
+          <tr v-for="utilisateur in filteredUtilisateurs" :key="utilisateur.id_utilisateur">
             <td>
               <input
                 type="checkbox"
-                :value="utilisateur.id"
+                :value="utilisateur.id_utilisateur"
                 v-model="selectedUsers"
               />
             </td>
             <td>{{ utilisateur.pseudo }}</td>
-            <td>{{ utilisateur.nom }}</td>
-            <td>{{ utilisateur.email }}</td>
             <td>{{ utilisateur.appartenir[0]?.groupe.nom || 'N/A' }}</td>
-            <td>{{ utilisateur.mot_de_passe }}</td>
+            <td>{{ utilisateur.appartenir[0]?.groupe.role || 'N/A' }}</td>
             <td>
               <button @click="editUser(utilisateur)">Modifier</button>
               <button @click="confirmDeleteUser(utilisateur)">Supprimer</button>
@@ -70,7 +68,7 @@
 
         <label for="editGroupe">Groupe:</label>
         <select v-model="editUtilisateur.groupe_id" id="editGroupe">
-          <option v-for="groupe in groupes" :key="groupe.id" :value="groupe.id">{{ groupe.nom }}</option>
+          <option v-for="groupe in groupes" :key="groupe.id_groupe" :value="groupe.id_groupe">{{ groupe.nom }}</option>
         </select>
 
         <button @click="updateUser">Mettre à jour</button>
@@ -78,25 +76,14 @@
       </div>
     </div>
 
-    <!-- Modale de suppression utilisateur -->
-    <div v-if="showDeleteModal" class="modal">
-      <div class="modal-content">
-        <h3>Mot de passe requis</h3>
-        <input
-          type="password"
-          v-model="motDePasse"
-          placeholder="Entrez votre mot de passe"
-        />
-        <button @click="verifyPassword">Vérifier</button>
-        <button @click="closeDeleteModal">Annuler</button>
-      </div>
-    </div>
-
     <!-- Confirmation de suppression -->
     <div v-if="showConfirmModal" class="modal">
       <div class="modal-content">
-        <h3>Êtes-vous sûr de vouloir supprimer cet utilisateur ?</h3>
-        <button @click="deleteUser">Supprimer</button>
+        <h3>Êtes-vous sûr de vouloir supprimer ces utilisateurs :</h3>
+        <ul>
+          <li v-for="user in usersToDelete" :key="user.id_utilisateur">{{ user.pseudo }}</li>
+        </ul>
+        <button @click="deleteUsers">Supprimer</button>
         <button @click="closeConfirmModal">Annuler</button>
       </div>
     </div>
@@ -105,6 +92,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
+import bcrypt from 'bcryptjs';
 import { supabase } from "../supabase";
 import CreationU from "./CreationU.vue";
 
@@ -112,14 +100,13 @@ const utilisateurs = ref([]);
 const groupes = ref([]);
 const showCreation = ref(false);
 const showEditModal = ref(false);
-const showDeleteModal = ref(false);
 const showConfirmModal = ref(false);
-const motDePasse = ref("");
 const editUtilisateur = ref({});
-const userToDelete = ref(null);
+const usersToDelete = ref([]); // Liste des utilisateurs à supprimer
 const selectAll = ref(false); // Case pour "Tout cocher"
 const selectedUsers = ref([]); // Liste des utilisateurs sélectionnés
 const searchQuery = ref(""); // Valeur pour la recherche
+const currentUser = ref(null); // Utilisateur connecté
 
 // Fonction pour récupérer les utilisateurs
 const fetchUtilisateurs = async () => {
@@ -155,7 +142,10 @@ const hideCreationForm = () => {
 
 // Fonction pour modifier un utilisateur
 const editUser = (utilisateur) => {
-  editUtilisateur.value = { ...utilisateur };
+  editUtilisateur.value = {
+    ...utilisateur,
+    groupe_id: utilisateur.appartenir[0]?.groupe.id_groupe || null
+  };
   showEditModal.value = true;
 };
 
@@ -164,66 +154,68 @@ const closeEditModal = () => {
   showEditModal.value = false;
 };
 
-// Fonction pour mettre à jour un utilisateur
 const updateUser = async () => {
   console.log("Tentative de mise à jour de l'utilisateur:", editUtilisateur.value);
 
-  const { error } = await supabase
-    .from("utilisateur")
-    .update({
-      pseudo: editUtilisateur.value.pseudo,
-      mot_de_passe: editUtilisateur.value.mot_de_passe,
-      groupe_id: editUtilisateur.value.groupe_id,
-    })
-    .eq("id", editUtilisateur.value.id);
+  try {
+    const hashedPassword = await bcrypt.hash(editUtilisateur.value.mot_de_passe, 10);
 
-  if (error) {
-    console.error("Erreur lors de la mise à jour de l'utilisateur:", error.message);
-    alert("Une erreur est survenue lors de la mise à jour de l'utilisateur.");
-  } else {
-    fetchUtilisateurs();
-    closeEditModal();
+    const { error } = await supabase
+      .from("utilisateur")
+      .update({
+        pseudo: editUtilisateur.value.pseudo,
+        mot_de_passe: hashedPassword,
+      })
+      .eq("id_utilisateur", editUtilisateur.value.id_utilisateur);
+
+    if (error) {
+      console.error("Erreur lors de la mise à jour de l'utilisateur:", error.message);
+      alert("Une erreur est survenue lors de la mise à jour de l'utilisateur.");
+    } else {
+      const { error: groupError } = await supabase
+        .from("appartenir")
+        .update({ id_groupe: editUtilisateur.value.groupe_id })
+        .eq("id_utilisateur", editUtilisateur.value.id_utilisateur);
+
+      if (groupError) {
+        console.error("Erreur lors de la mise à jour du groupe de l'utilisateur:", groupError.message);
+        alert("Une erreur est survenue lors de la mise à jour du groupe de l'utilisateur.");
+      } else {
+        fetchUtilisateurs();
+        closeEditModal();
+      }
+    }
+  } catch (error) {
+    console.error("Erreur lors du hachage du mot de passe:", error);
+    alert("Une erreur est survenue lors du hachage du mot de passe.");
   }
 };
 
 // Fonction pour confirmer la suppression d'un utilisateur
 const confirmDeleteUser = (utilisateur) => {
-  userToDelete.value = utilisateur;
-  showDeleteModal.value = true;
+  usersToDelete.value = [utilisateur];
+  showConfirmModal.value = true;
 };
 
-// Fonction pour vérifier le mot de passe avant la suppression
-const verifyPassword = async () => {
-  const { data, error } = await supabase
+// Fonction pour confirmer la suppression des utilisateurs sélectionnés
+const confirmDeleteSelectedUsers = () => {
+  usersToDelete.value = utilisateurs.value.filter(user => selectedUsers.value.includes(user.id_utilisateur));
+  showConfirmModal.value = true;
+};
+
+// Fonction pour supprimer les utilisateurs
+const deleteUsers = async () => {
+  const { error } = await supabase
     .from("utilisateur")
-    .select("mot_de_passe")
-    .eq("id", userToDelete.value.id)
-    .single();
-
-  if (error || data.mot_de_passe !== motDePasse.value) {
-    alert("Mot de passe incorrect !");
-  } else {
-    closeDeleteModal();
-    showConfirmModal.value = true;
-  }
-};
-
-// Fonction pour supprimer un utilisateur
-const deleteUser = async () => {
-  const { error } = await supabase.from("utilisateur").delete().eq("id", userToDelete.value.id);
+    .delete()
+    .in("id_utilisateur", usersToDelete.value.map(user => user.id_utilisateur));
 
   if (error) {
-    console.error("Erreur lors de la suppression de l'utilisateur:", error);
+    console.error("Erreur lors de la suppression des utilisateurs:", error);
   } else {
     fetchUtilisateurs();
     closeConfirmModal();
   }
-};
-
-// Fonction pour fermer la modale de suppression
-const closeDeleteModal = () => {
-  showDeleteModal.value = false;
-  motDePasse.value = "";
 };
 
 // Fonction pour fermer la modale de confirmation
@@ -234,7 +226,7 @@ const closeConfirmModal = () => {
 // Fonction pour gérer le changement de la case "tout cocher"
 const toggleSelectAll = () => {
   if (selectAll.value) {
-    selectedUsers.value = utilisateurs.value.map((utilisateur) => utilisateur.id);
+    selectedUsers.value = utilisateurs.value.map((utilisateur) => utilisateur.id_utilisateur);
   } else {
     selectedUsers.value = [];
   }
@@ -255,15 +247,14 @@ const filteredUtilisateurs = computed(() => {
   );
 });
 
-// Au montage du composant, on récupère les utilisateurs et les groupes
 onMounted(() => {
   fetchUtilisateurs();
   fetchGroupes();
+  currentUser.value = JSON.parse(localStorage.getItem('currentUser'));
 });
 </script>
 
 <style scoped>
-/* Styles */
 header {
   background-color: #c59edb;
   color: white;
@@ -292,11 +283,26 @@ table {
   margin-top: 20px;
 }
 
-table th,
-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 10px;
   text-align: left;
+}
+
+.data-table th {
+  background-color: #f0f0f0;
+}
+
+.data-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+input[type="text"] {
+  padding: 10px;
+  margin-top: 10px;
+  width: 200px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
 
 input[type="checkbox"] {

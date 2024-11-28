@@ -86,7 +86,8 @@ const createUser = async () => {
       .insert([{
         pseudo: user.value.pseudo, 
         mot_de_passe: hashedPassword 
-      }]);
+      }])
+      .select();
 
     if (userError) {
       console.error('Erreur lors de la création de l\'utilisateur:', userError.message);
@@ -108,6 +109,12 @@ const createUser = async () => {
         id_utilisateur: userId,
         id_groupe: user.value.groupe
       }]);
+
+    if (groupError) {
+      console.error('Erreur lors de l\'association de l\'utilisateur au groupe:', groupError.message);
+      alert('Erreur lors de l\'association de l\'utilisateur au groupe: ' + groupError.message);
+      return;
+    }
 
     if (groupError) {
       console.error('Erreur lors de l\'association de l\'utilisateur au groupe:', groupError.message);

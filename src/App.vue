@@ -33,6 +33,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { supabase } from './supabase';
+import bcrypt from 'bcryptjs';
 import Administrateur from './components/Administrateur.vue';
 import Collaborateur from './components/Collaborateur.vue';
 
@@ -48,7 +49,6 @@ const submitForm = async () => {
       .from('utilisateur')
       .select(`*, appartenir (groupe (role))`)
       .eq('pseudo', username.value)
-      .eq('mot_de_passe', password.value)
       .single();
 
     if (error) {
@@ -58,8 +58,13 @@ const submitForm = async () => {
     }
 
     if (data) {
-      userRole.value = data.appartenir[0].groupe.role;
-      isLoggedIn.value = true;
+      const validPassword = await bcrypt.compare(password.value, data.mot_de_passe);
+      if (validPassword) {
+        userRole.value = data.appartenir[0].groupe.role;
+        isLoggedIn.value = true;
+      } else {
+        alert('Nom d’utilisateur ou mot de passe incorrect');
+      }
     }
   } catch (err) {
     console.error('Erreur lors de la soumission:', err);
