@@ -6,6 +6,7 @@ import Utilisateur from '../components/Utilisateur.vue';
 import Questionnaires from '../components/Questionnaires.vue';
 import Dashboard from '../components/Dashboard.vue';
 import EditQuestions from '../components/EditQuestions.vue';
+import Evaluation from '../components/Evaluation.vue';
 
 const routes = [
   {
@@ -44,6 +45,12 @@ const routes = [
     path: '/edit-questions/:questionnaireId',
     name: 'EditQuestions',
     component: EditQuestions,
+    props: true,
+  },
+  {
+    path: '/evaluation/:questionnaireId',
+    name: 'Evaluation',
+    component: Evaluation,
     props: true,
   },
 ];

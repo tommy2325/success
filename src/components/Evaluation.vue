@@ -1,7 +1,7 @@
 <template>
     <div class="evaluation">
         <div class="header">
-            <h1>QUESTIONNAIRE</h1>
+            <h1>Questionnaire: {{ questionnaire.nom }}</h1>
         </div>
         
         <div class="questionnaire-content">
@@ -24,7 +24,10 @@
 
             <div class="navigation">
                 <button class="btn back" @click="goBack">Retour</button>
-                <button class="btn next" @click="submitQuestion">Suivante</button>
+                <button class="btn next" @click="submitQuestion" v-if="!showReturnButton">
+                    {{ currentQuestion < questions.length - 1 ? 'Suivante' : 'Finir le questionnaire' }}
+                </button>
+                <button class="btn return" @click="goBack" v-if="showReturnButton">Revenir à l'accueil</button>
             </div>
         </div>
 
@@ -36,38 +39,35 @@
 
 <script>
 import { ref, onMounted, onUnmounted } from "vue";
+import { useRouter } from 'vue-router';
 import { supabase } from "../supabase";
 
 export default {
     props: {
         userId: { type: String, required: true },
-        inputCode: { type: String, required: true },
+        questionnaire: { type: Object, required: true },
     },
     setup(props) {
+        const router = useRouter();
         const currentQuestion = ref(0);
         const timer = ref(0);
         const timerInterval = ref(null);
         const questions = ref([]);
         const answers = ref([]);
         const selectedAnswers = ref([]);
-        const questionnaire = ref(null);
+        const questionnaire = ref(props.questionnaire);
+        const showReturnButton = ref(false);
 
         onMounted(async () => {
             try {
-                // Récupérer le questionnaire
-                const { data: questionnaireData } = await supabase
-                    .from("questionnaire")
-                    .select("*")
-                    .eq("code", props.inputCode)
-                    .single();
+                // Initialiser le timer avec le temps de passage du questionnaire
+                timer.value = questionnaire.value.temps_de_passage * 60;
 
-                if (!questionnaireData) return;
-                questionnaire.value = questionnaireData;
-
+                // Récupérer les questions liées au questionnaire
                 const { data: questionsData } = await supabase
                     .from("question")
-                    .select("*")
-                    .eq("id_questionnaire", questionnaireData.id_questionnaire);
+                    .select("*, contenir(id_questionnaire)")
+                    .eq("contenir.id_questionnaire", questionnaire.value.id_questionnaire);
 
                 questions.value = questionsData;
 
@@ -93,7 +93,16 @@ export default {
         });
 
         const startTimer = () => {
-            timerInterval.value = setInterval(() => timer.value++, 1000);
+            timerInterval.value = setInterval(() => {
+                if (timer.value > 0) {
+                    timer.value--;
+                } else {
+                    clearInterval(timerInterval.value);
+                    // Logique pour terminer le questionnaire lorsque le temps est écoulé
+                    saveResults();
+                    showReturnButton.value = true;
+                }
+            }, 1000);
         };
 
         const formatTime = () => {
@@ -111,11 +120,35 @@ export default {
                 currentQuestion.value++;
             } else {
                 // Calculer et sauvegarder les résultats ici
+                saveResults();
+                showReturnButton.value = true;
+            }
+        };
+
+        const saveResults = async () => {
+            try {
+                const score = selectedAnswers.value.reduce((total, answer, index) => {
+                    if (answer && answer.etre_bonne_reponse) {
+                        return total + questions.value[index].points;
+                    }
+                    return total;
+                }, 0);
+
+                await supabase.from('passer').insert({
+                    id_utilisateur: props.userId,
+                    id_questionnaire: questionnaire.value.id_questionnaire,
+                    note: score,
+                    date: new Date().toISOString().split('T')[0]
+                });
+
+                alert(`Votre score est de ${score}`);
+            } catch (error) {
+                console.error("Erreur lors de la sauvegarde des résultats :", error);
             }
         };
 
         const goBack = () => {
-            // Navigation vers une autre page
+            router.push({ name: 'Collaborateur' });
         };
 
         return {
@@ -128,7 +161,9 @@ export default {
             formatTime,
             selectAnswer,
             submitQuestion,
+            saveResults,
             goBack,
+            showReturnButton
         };
     },
 };
@@ -150,6 +185,7 @@ export default {
     padding: 10px;
     font-size: 20px;
     position: relative;
+    margin-top: 50px;
 }
 
 .user-info {
@@ -166,6 +202,7 @@ export default {
 }
 
 .questionnaire-content {
+    margin-top: 50px; /* Augmentez cette valeur pour éloigner le conteneur */
     background-color: #f7f7f7;
     padding: 20px;
     border-radius: 8px;
