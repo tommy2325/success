@@ -1,7 +1,11 @@
 <template>
     <div class="evaluation">
         <div class="header">
-            <h1>Questionnaire: {{ questionnaire.nom }}</h1>
+            <h1>Évaluation</h1>
+            <div class="user-info">
+                <span>{{ username }}</span>
+                <button @click="logout">Déconnexion</button>
+            </div>
         </div>
         
         <div class="questionnaire-content">
@@ -23,7 +27,7 @@
             </div>
 
             <div class="navigation">
-                <button class="btn back" @click="goBack">Retour</button>
+                <button class="btn back" @click="stopEvaluation">Arrêter le questionnaire</button>
                 <button class="btn next" @click="submitQuestion" v-if="!showReturnButton">
                     {{ currentQuestion < questions.length - 1 ? 'Suivante' : 'Finir le questionnaire' }}
                 </button>
@@ -46,6 +50,7 @@ export default {
     props: {
         userId: { type: String, required: true },
         questionnaire: { type: Object, required: true },
+        username: { type: String, required: true }
     },
     setup(props) {
         const router = useRouter();
@@ -151,6 +156,16 @@ export default {
             router.push({ name: 'Collaborateur' });
         };
 
+        const stopEvaluation = () => {
+            if (confirm("Êtes-vous sûr de vouloir arrêter le questionnaire ? Vos réponses ne seront pas sauvegardées.")) {
+                goBack();
+            }
+        };
+
+        const logout = () => {
+            router.push({ name: 'Login' });
+        };
+
         return {
             currentQuestion,
             questions,
@@ -163,7 +178,9 @@ export default {
             submitQuestion,
             saveResults,
             goBack,
-            showReturnButton
+            stopEvaluation,
+            showReturnButton,
+            logout
         };
     },
 };
@@ -179,19 +196,47 @@ export default {
 }
 
 .header {
-    background-color: #b18cd8;
+    background-color: #c59edb;
+    width: 100%;
+    padding: 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h1 {
+    margin: 0;
     color: white;
+    font-size: 2rem;
+    flex-grow: 1;
     text-align: center;
-    padding: 10px;
-    font-size: 20px;
-    position: relative;
-    margin-top: 50px;
 }
 
 .user-info {
-    position: absolute;
-    top: 10px;
-    right: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.user-info span {
+    margin-right: 20px;
+    color: white;
+    font-size: 1rem;
+}
+
+.user-info button {
+    background-color: white;
+    color: #c59edb;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.user-info button:hover {
+    background-color: #b48ac6;
 }
 
 .timer {
@@ -202,7 +247,7 @@ export default {
 }
 
 .questionnaire-content {
-    margin-top: 50px; /* Augmentez cette valeur pour éloigner le conteneur */
+    margin-top: 80px; /* Augmentez cette valeur pour éloigner le conteneur */
     background-color: #f7f7f7;
     padding: 20px;
     border-radius: 8px;

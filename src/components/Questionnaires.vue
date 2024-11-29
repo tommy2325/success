@@ -92,15 +92,15 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 import { supabase } from '../supabase';
 import CreationQ from './CreationQ.vue';
+import EditQuestions from './EditQuestions.vue'; // Importer le composant
 
-const router = useRouter();
 const questionnaires = ref([]);
 const filteredQuestionnaires = ref([]);
 const showCreation = ref(false);
 const showEditForm = ref(false);
+const showEditQuestions = ref(false); // Variable pour contrôler l'affichage de EditQuestions.vue
 const selectAll = ref(false);
 const selectedQuestionnaires = ref([]);
 const searchQuery = ref('');
@@ -165,7 +165,7 @@ const updateQuestionnaire = async () => {
 };
 
 const editQuestions = () => {
-  router.push({ name: 'EditQuestions', params: { questionnaireId: questionnaire.value.id_questionnaire } });
+  showEditQuestions.value = true; // Afficher EditQuestions.vue
 };
 
 const confirmDeleteQuestionnaire = (questionnaire) => {
@@ -213,7 +213,6 @@ const toggleQuestionnaireSelection = (id) => {
   selectAll.value = questionnaires.value.length === selectedQuestionnaires.value.length;
 };
 
-// Fonction de filtrage des questionnaires
 const filterQuestionnaires = () => {
   filteredQuestionnaires.value = questionnaires.value.filter((questionnaire) => 
     questionnaire.nom.toLowerCase().includes(searchQuery.value.toLowerCase())

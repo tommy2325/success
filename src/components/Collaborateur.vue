@@ -54,8 +54,6 @@
             </div>
           </div>
         </div>
-
-        <button class="back-btn">Retour</button>
       </div>
     </div>
 
