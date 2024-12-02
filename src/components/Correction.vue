@@ -1,0 +1,217 @@
+<template>
+  <div class="correction">
+    <div class="header">
+      <h1>Correction</h1>
+      <div class="user-info">
+        <span>{{ username }}</span>
+        <button @click="goBack">Retour</button>
+      </div>
+    </div>
+    
+    <div class="questionnaire-content">
+      <h2>QUESTION n°{{ currentQuestion + 1 }}</h2>
+
+      <div class="question-section">
+        <div class="question">{{ questions[currentQuestion]?.titre }}</div>
+        <div class="answers">
+          <div
+            v-for="(answer, index) in answers[currentQuestion]"
+            :key="index"
+            :class="{
+              correct: answer.etre_bonne_reponse,
+              incorrect: !answer.etre_bonne_reponse && selectedAnswers[currentQuestion]?.id_reponse === answer.id_reponse
+            }"
+          >
+            {{ answer.titre }}
+          </div>
+        </div>
+      </div>
+
+      <div class="navigation">
+        <button class="btn back" @click="prevQuestion" :disabled="currentQuestion === 0">← Précédente</button>
+        <button class="btn next" @click="nextQuestion" :disabled="currentQuestion === questions.length - 1">Suivante →</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { supabase } from '../supabase';
+
+const props = defineProps({
+  username: {
+    type: String,
+    required: true
+  },
+  idQuestionnaire: {
+    type: Number,
+    required: true
+  },
+  idUtilisateur: {
+    type: Number,
+    required: true
+  }
+});
+
+const router = useRouter();
+const currentQuestion = ref(0);
+const questions = ref([]);
+const answers = ref([]);
+const selectedAnswers = ref([]);
+
+const fetchCorrection = async () => {
+  try {
+    // Récupérer les questions liées au questionnaire
+    const { data: questionsData, error: questionsError } = await supabase
+      .from('question')
+      .select('id_question, titre')
+      .in('id_question', supabase
+        .from('contenir')
+        .select('id_question')
+        .eq('id_questionnaire', props.idQuestionnaire)
+      );
+
+    if (questionsError) throw questionsError;
+    questions.value = questionsData;
+
+    // Récupérer les réponses pour chaque question
+    for (const question of questionsData) {
+      const { data: answersData, error: answersError } = await supabase
+        .from('reponse')
+        .select('id_reponse, titre, etre_bonne_reponse')
+        .eq('id_question', question.id_question);
+
+      if (answersError) throw answersError;
+      answers.value.push(answersData);
+    }
+
+    // Récupérer les réponses sélectionnées par l'utilisateur
+    const { data: selectedAnswersData, error: selectedAnswersError } = await supabase
+      .from('reponse_utilisateur')
+      .select('id_question, id_reponse')
+      .eq('id_utilisateur', props.idUtilisateur)
+      .eq('id_questionnaire', props.idQuestionnaire);
+
+    if (selectedAnswersError) throw selectedAnswersError;
+    selectedAnswers.value = selectedAnswersData.reduce((acc, answer) => {
+      acc[answer.id_question] = answer;
+      return acc;
+    }, {});
+  } catch (error) {
+    console.error("Erreur lors de la récupération des corrections :", error);
+  }
+};
+
+const prevQuestion = () => {
+  if (currentQuestion.value > 0) {
+    currentQuestion.value--;
+  }
+};
+
+const nextQuestion = () => {
+  if (currentQuestion.value < questions.value.length - 1) {
+    currentQuestion.value++;
+  }
+};
+
+const goBack = () => {
+  router.back();
+};
+
+onMounted(() => {
+  fetchCorrection();
+});
+</script>
+
+<style scoped>
+.correction {
+  font-family: Arial, sans-serif;
+  color: #333;
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.header {
+  background-color: #c59edb;
+  width: 100%;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h1 {
+  margin: 0;
+  color: white;
+  font-size: 2rem;
+}
+
+.header .user-info button {
+  background-color: white;
+  color: #c59edb;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.header .user-info button:hover {
+  background-color: #b48ac6;
+}
+
+.questionnaire-content {
+  margin-top: 20px;
+  background-color: #f7f7f7;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.question-section {
+  margin: 20px 0;
+}
+
+.answers {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.answers div {
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.answers .correct {
+  background-color: #a983db;
+  color: white;
+}
+
+.answers .incorrect {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.navigation .btn {
+  background-color: #b18cd8;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.navigation .btn:hover {
+  background-color: #a983db;
+}
+</style>
