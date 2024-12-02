@@ -33,7 +33,7 @@ const passages = ref([]);
 const selectedPassage = ref(null);
 const utilisateurs = ref({});
 const questionnaires = ref({});
-const username = ref(''); 
+const username = ref(''); // Remplacez par le nom d'utilisateur actuel
 
 const fetchPassages = async () => {
   const { data, error } = await supabase
