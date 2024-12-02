@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>Correction des Questionnaires</h2>
-    <table>
+    <table v-if="!selectedPassage">
       <thead>
         <tr>
           <th>Nom du Questionnaire</th>
@@ -12,7 +12,7 @@
       </thead>
       <tbody>
         <tr v-for="passage in passages" :key="passage.id_passer">
-          <td @click="showCorrection(passage.id_questionnaire)">{{ passage.nom_questionnaire }}</td>
+          <td @click="showCorrection(passage)">{{ passage.nom_questionnaire }}</td>
           <td>{{ passage.utilisateur }}</td>
           <td>{{ passage.note }}</td>
           <td>{{ formatDate(passage.date) }}</td>
@@ -20,37 +20,20 @@
       </tbody>
     </table>
 
-    <div v-if="selectedQuestionnaire">
-      <h3>Correction pour {{ selectedQuestionnaire.nom }}</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Question</th>
-            <th>Réponse Utilisateur</th>
-            <th>Bonne Réponse</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="correction in corrections" :key="correction.id_question">
-            <td>{{ correction.question }}</td>
-            <td>{{ correction.reponse_utilisateur }}</td>
-            <td>{{ correction.bonne_reponse }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <Correction v-if="selectedPassage" :username="username" :idQuestionnaire="selectedPassage.id_questionnaire" :idUtilisateur="selectedPassage.id_utilisateur" @goBack="selectedPassage = null" />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
 import { supabase } from '../supabase';
+import Correction from './Correction.vue';
 
 const passages = ref([]);
-const selectedQuestionnaire = ref(null);
-const corrections = ref([]);
+const selectedPassage = ref(null);
 const utilisateurs = ref({});
 const questionnaires = ref({});
+const username = ref(''); 
 
 const fetchPassages = async () => {
   const { data, error } = await supabase
@@ -68,7 +51,6 @@ const fetchPassages = async () => {
     console.error("Erreur lors de la récupération des passages :", error);
   } else {
     passages.value = data;
-    console.log(passages.value); // Vérifiez les données récupérées
     fetchUtilisateurs();
   }
 };
@@ -85,7 +67,6 @@ const fetchUtilisateurs = async () => {
       acc[utilisateur.id_utilisateur] = utilisateur.pseudo;
       return acc;
     }, {});
-    console.log(utilisateurs.value); // Vérifiez les données récupérées
     fetchQuestionnaires();
   }
 };
@@ -102,7 +83,6 @@ const fetchQuestionnaires = async () => {
       acc[questionnaire.id_questionnaire] = questionnaire.nom;
       return acc;
     }, {});
-    console.log(questionnaires.value); // Vérifiez les données récupérées
     mapPassages();
   }
 };
@@ -113,30 +93,10 @@ const mapPassages = () => {
     utilisateur: utilisateurs.value[passage.id_utilisateur],
     nom_questionnaire: questionnaires.value[passage.id_questionnaire]
   }));
-  console.log(passages.value); // Vérifiez les données mappées
 };
 
-const showCorrection = async (id_questionnaire) => {
-  selectedQuestionnaire.value = passages.value.find(p => p.id_questionnaire === id_questionnaire);
-
-  const { data, error } = await supabase
-    .from('question')
-    .select(`
-      id_question,
-      titre,
-      reponse (titre, etre_bonne_reponse)
-    `)
-    .eq('id_questionnaire', id_questionnaire);
-
-  if (error) {
-    console.error("Erreur lors de la récupération des corrections :", error);
-  } else {
-    corrections.value = data.map(question => ({
-      question: question.titre,
-      reponse_utilisateur: question.reponse.find(r => !r.etre_bonne_reponse)?.titre || 'N/A',
-      bonne_reponse: question.reponse.find(r => r.etre_bonne_reponse)?.titre || 'N/A'
-    }));
-  }
+const showCorrection = (passage) => {
+  selectedPassage.value = passage;
 };
 
 const formatDate = (date) => {
