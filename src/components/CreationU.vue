@@ -38,14 +38,49 @@ const user = ref({
   groupe: '1' 
 });
 
+const groupes = ref([]);
+const roles = ref([]);
+
+// Récupérer les groupes depuis la base de données
+const fetchGroupes = async () => {
+  const { data, error } = await supabase.from('groupe').select('*');
+  if (error) {
+    console.error('Erreur lors de la récupération des groupes:', error);
+  } else {
+    groupes.value = data;
+  }
+};
+
+const fetchRoles = async () => {
+  const selectedGroup = groupes.value.find(g => g.id_groupe === user.value.groupe);
+  roles.value = selectedGroup ? [selectedGroup.role] : [];
+};
+
+onMounted(() => {
+  fetchGroupes();
+});
+
 const createUser = async () => {
   try {
-    // Vérification de la session utilisateur
-    const userSession = supabase.auth.user();
-    console.log('Session utilisateur:', userSession); // Log pour vérifier la session de l'utilisateur
-    
-    if (!userSession) {
-      alert('Vous devez être connecté pour créer un utilisateur.');
+    const hashedPassword = await bcrypt.hash(user.value.mot_de_passe, 10);
+
+    const { data: userData, error: userError } = await supabase
+      .from('utilisateur')  
+      .insert([{
+        pseudo: user.value.pseudo, 
+        mot_de_passe: hashedPassword 
+      }])
+      .select();
+
+    if (userError) {
+      console.error('Erreur lors de la création de l\'utilisateur:', userError.message);
+      alert('Erreur lors de la création de l\'utilisateur: ' + userError.message);
+      return;
+    }
+
+    if (!userData || !userData[0]) {
+      console.error('Aucune donnée retournée pour l\'utilisateur');
+      alert('Aucune donnée retournée lors de la création de l\'utilisateur.');
       return;
     }
 
@@ -78,18 +113,23 @@ const createUser = async () => {
       }]);
 
     if (groupError) {
-      console.error('Erreur lors de l\'insertion dans Appartenir:', groupError);
-      throw new Error(groupError.message);
+      console.error('Erreur lors de l\'association de l\'utilisateur au groupe:', groupError.message);
+      alert('Erreur lors de l\'association de l\'utilisateur au groupe: ' + groupError.message);
+      return;
     }
 
-    console.log('Utilisateur créé et associé au groupe avec succès');
-    
-    // Réinitialiser le formulaire après succès
-    user.value = { pseudo: '', nom: '', email: '', groupe: '1' };
-    
+    if (groupError) {
+      console.error('Erreur lors de l\'association de l\'utilisateur au groupe:', groupError.message);
+      alert('Erreur lors de l\'association de l\'utilisateur au groupe: ' + groupError.message);
+      return;
+    }
+
+    user.value = { pseudo: '', mot_de_passe: '', confirmation_mot_de_passe: '', groupe: null, role: '' };
     emit('refresh'); 
+    emit('cancel');
   } catch (error) {
     console.error('Erreur lors de la création de l\'utilisateur:', error);
+    alert('Une erreur s\'est produite lors de la création de l\'utilisateur: ' + error.message);
   }
 };
 

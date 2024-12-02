@@ -4,7 +4,6 @@
       <h1>Administrateur</h1>
       <div class="user-info">
         <span>{{ username }}</span>
-        <!-- Bouton de déconnexion modifié -->
         <button class="logout-button" @click="logout">Déconnexion</button>
       </div>
     </div>
@@ -13,12 +12,14 @@
       <button @click="loadComponent('utilisateurs')">Utilisateurs</button>
       <button @click="loadComponent('questionnaires')">Questionnaires</button>
       <button @click="loadComponent('dashboard')">Dashboard</button>
+      <button @click="loadComponent('correction')">Correction</button>
     </div>
 
     <div class="component-container">
       <Utilisateur v-if="currentComponent === 'utilisateurs'" />
       <Questionnaires v-if="currentComponent === 'questionnaires'" />
       <Dashboard v-if="currentComponent === 'dashboard'" />
+      <Correction v-if="currentComponent === 'correction'" />
     </div>
   </div>
 </template>
@@ -28,6 +29,7 @@ import { ref } from 'vue';
 import Utilisateur from './Utilisateur.vue';
 import Questionnaires from './Questionnaires.vue';
 import Dashboard from './Dashboard.vue';
+import Correction from './ListeCorrection.vue';
 
 const props = defineProps({
   username: {
@@ -43,7 +45,6 @@ const loadComponent = (componentName) => {
   currentComponent.value = componentName;
 };
 
-// Logique de déconnexion (vous pouvez ajouter ici votre logique de déconnexion)
 const logout = () => {
   emit('logout');
 };
