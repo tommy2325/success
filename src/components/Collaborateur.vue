@@ -54,10 +54,12 @@
             </div>
           </div>
         </div>
+
+        <button class="back-btn">Retour</button>
       </div>
     </div>
 
-    <Evaluation v-if="showDebutTest" :username="username" :questionnaire="questionnaireData" />
+    <Evaluation v-if="showDebutTest" :username="username" :userId="userId" :questionnaire="questionnaireData" />
   </div>
 </template>
 
@@ -70,6 +72,10 @@ import Evaluation from './Evaluation.vue';
 const props = defineProps({
   username: {
     type: String,
+    required: true
+  },
+  userId: {
+    type: Number,
     required: true
   }
 });
@@ -94,6 +100,7 @@ const fetchPassages = async () => {
       note,
       questionnaire (nom)
     `)
+    .eq('id_utilisateur', props.userId)
     .order('date', { ascending: false });
 
   if (error) {

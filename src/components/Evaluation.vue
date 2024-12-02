@@ -1,7 +1,7 @@
 <template>
     <div class="evaluation">
         <div class="header">
-            <h1>Évaluation</h1>
+            <h1>Évaluation </h1>
             <div class="user-info">
                 <span>{{ username }}</span>
                 <button @click="logout">Déconnexion</button>
@@ -139,8 +139,21 @@ export default {
                     return total;
                 }, 0);
 
+                // Récupérer l'id_utilisateur basé sur le username
+                const { data: userData, error: userError } = await supabase
+                    .from('utilisateur')
+                    .select('id_utilisateur')
+                    .eq('pseudo', props.username)
+                    .single();
+
+                if (userError) {
+                    throw new Error(userError.message);
+                }
+
+                const userId = userData.id_utilisateur;
+
                 await supabase.from('passer').insert({
-                    id_utilisateur: props.userId,
+                    id_utilisateur: userId,
                     id_questionnaire: questionnaire.value.id_questionnaire,
                     note: score,
                     date: new Date().toISOString().split('T')[0]
