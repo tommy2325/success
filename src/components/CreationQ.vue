@@ -37,9 +37,11 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';  // Importer le hook useRouter
 import { supabase } from '../supabase';  // Importer la connexion à Supabase
+import CreationQu from './CreationQu.vue';  // Importer le composant CreationQu
 
-const emit = defineEmits(['refresh', 'cancel']);
+const emit = defineEmits(['refresh', 'cancel', 'showCreationQ']);
 
 const router = useRouter();
 
@@ -52,6 +54,7 @@ const qcm = ref({
 
 const errorMessage = ref(null);
 const successMessage = ref(null);
+const questionnaireCreated = ref(false); // Variable pour vérifier si le questionnaire est créé
 
 // Créer un questionnaire
 const createQuestionnaire = async () => {
@@ -73,6 +76,7 @@ const createQuestionnaire = async () => {
     } else {
       successMessage.value = 'Questionnaire créé avec succès!';
       qcm.value = { nom: '', temps: '', mot_de_passe: '' };
+      questionnaireCreated.value = true; // Le questionnaire a été créé, afficher les options suivantes
       emit('refresh');
       emit('showCreationQ', false); // Masque le modal et retourne à l'écran initial
       router.push({ name: 'Questionnaires' }); // Redirige vers la page des questionnaires
@@ -85,6 +89,7 @@ const createQuestionnaire = async () => {
 // Annuler la création du questionnaire
 const cancel = () => {
   emit('cancel');
+  emit('showCreationQ', false); // Masque le modal et retourne à l'écran initial
 };
 </script>
 

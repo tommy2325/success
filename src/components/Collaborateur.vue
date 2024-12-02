@@ -93,12 +93,12 @@ const logout = () => {
 
 const fetchPassages = async () => {
   const { data, error } = await supabase
-    .from('Passer')
+    .from('passer')
     .select(`
       id_passer,
       date,
       note,
-      Questionnaire (nom)
+      questionnaire (nom)
     `)
     .eq('id_utilisateur', props.userId)
     .order('date', { ascending: false });
@@ -110,7 +110,7 @@ const fetchPassages = async () => {
       id_passer: passage.id_passer,
       date: passage.date,
       note: passage.note,
-      nom_questionnaire: passage.Questionnaire.nom
+      nom_questionnaire: passage.questionnaire.nom
     }));
   }
 };
@@ -166,7 +166,7 @@ onMounted(() => {
 <style scoped>
 .header {
   background-color: #c59edb;
-  width: 100%;
+  width: 98%;
   padding: 20px;
   position: fixed;
   top: 0;
@@ -193,6 +193,21 @@ onMounted(() => {
   margin-right: 20px;
   color: white;
   font-size: 1rem;
+}
+
+.logout-button {
+  background-color: #e74c3c;
+  color: white;
+  padding: 8px 16px;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.logout-button:hover {
+  background-color: #c0392b;
 }
 
 .collaborateur-container {
