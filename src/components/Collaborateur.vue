@@ -76,12 +76,12 @@ const logout = () => {
 
 const fetchPassages = async () => {
   const { data, error } = await supabase
-    .from('passer')
+    .from('Passer')
     .select(`
       id_passer,
       date,
       note,
-      questionnaire (nom)
+      Questionnaire (nom)
     `)
     .order('date', { ascending: false });
 
@@ -92,7 +92,7 @@ const fetchPassages = async () => {
       id_passer: passage.id_passer,
       date: passage.date,
       note: passage.note,
-      nom_questionnaire: passage.questionnaire.nom
+      nom_questionnaire: passage.Questionnaire.nom
     }));
   }
 };
@@ -102,23 +102,12 @@ const formatDate = (date) => {
   return new Date(date).toLocaleDateString('fr-FR', options);
 };
 
-// Nouvelle fonction checkCode avec validation dynamique du code depuis Supabase
-const checkCode = async () => {
-  try {
-    const { data, error } = await supabase
-      .from('questionnaire')
-      .select('code')
-      .eq('code', inputCode.value)
-      .single();
-
-    if (error || !data) {
-      alert('Code incorrect');
-    } else {
-      showDebutTest.value = true; // Affiche le composant DebutTest si le code est valide
-    }
-  } catch (error) {
-    console.error("Erreur lors de la vérification du code :", error);
-    alert('Erreur lors de la vérification du code');
+// Fonction pour vérifier le code et afficher DebutTest si le code est "1234"
+const checkCode = () => {
+  if (inputCode.value === '1234') {
+    showDebutTest.value = true; // Affiche le composant DebutTest
+  } else {
+    alert('Code incorrect');
   }
 };
 
@@ -130,7 +119,7 @@ onMounted(() => {
 <style scoped>
 .header {
   background-color: #c59edb;
-  width: 98%;
+  width: 100%;
   padding: 20px;
   position: fixed;
   top: 0;

@@ -2,37 +2,26 @@ import { createRouter, createWebHistory } from 'vue-router';
 import App from '../App.vue';
 import Collaborateur from '../components/Collaborateur.vue';
 import Administrateur from '../components/Administrateur.vue';
-<<<<<<< HEAD
-=======
 import Utilisateur from '../components/Utilisateur.vue';  // Importer le composant Utilisateur
 import Questionnaires from '../components/Questionnaires.vue';  // Importer le composant Questionnaires
 import Dashboard from '../components/Dashboard.vue';  // Importer le composant Dashboard
->>>>>>> 0e9bd09dc72236f89149cb4caa9aee4885622191
 
 const routes = [
   {
     path: '/',
     name: 'Home',
-<<<<<<< HEAD
-=======
     component: App, // Composant principal
->>>>>>> 0e9bd09dc72236f89149cb4caa9aee4885622191
   },
   {
     path: '/administrateur',
     name: 'Administrateur',
     component: Administrateur,
-<<<<<<< HEAD
-=======
     props: true,
->>>>>>> 0e9bd09dc72236f89149cb4caa9aee4885622191
   },
   {
     path: '/collaborateur',
     name: 'Collaborateur',
     component: Collaborateur,
-<<<<<<< HEAD
-=======
     props: true,
   },
   {
@@ -49,7 +38,6 @@ const routes = [
     path: '/dashboard',
     name: 'Dashboard',
     component: Dashboard,  // Route pour le composant Dashboard
->>>>>>> 0e9bd09dc72236f89149cb4caa9aee4885622191
   },
 ];
 
@@ -58,8 +46,6 @@ const router = createRouter({
   routes,
 });
 
-<<<<<<< HEAD
-=======
 // Navigation guard pour gérer l'accès via le code
 router.beforeEach((to, from, next) => {
   if (to.path === '/' && to.query.code) {
@@ -78,5 +64,4 @@ router.beforeEach((to, from, next) => {
   }
 });
 
->>>>>>> 0e9bd09dc72236f89149cb4caa9aee4885622191
 export default router;

@@ -122,8 +122,7 @@ button {
   font-size: 1rem;
   border-radius: 5px;
   cursor: pointer;
-  margin: 5px;
-  margin-left: 5px;
+  margin-top: 10px;
 }
 
 button:hover {
