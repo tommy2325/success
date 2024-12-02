@@ -2,15 +2,17 @@ import { createRouter, createWebHistory } from 'vue-router';
 import App from '../App.vue';
 import Collaborateur from '../components/Collaborateur.vue';
 import Administrateur from '../components/Administrateur.vue';
-import Utilisateur from '../components/Utilisateur.vue';  // Importer le composant Utilisateur
-import Questionnaires from '../components/Questionnaires.vue';  // Importer le composant Questionnaires
-import Dashboard from '../components/Dashboard.vue';  // Importer le composant Dashboard
+import Utilisateur from '../components/Utilisateur.vue';
+import Questionnaires from '../components/Questionnaires.vue';
+import Dashboard from '../components/Dashboard.vue';
+import EditQuestions from '../components/EditQuestions.vue';
+import Evaluation from '../components/Evaluation.vue';
 
 const routes = [
   {
     path: '/',
     name: 'Home',
-    component: App, // Composant principal
+    component: App,
   },
   {
     path: '/administrateur',
@@ -27,41 +29,35 @@ const routes = [
   {
     path: '/utilisateurs',
     name: 'Utilisateur',
-    component: Utilisateur,  // Route pour le composant Utilisateur
+    component: Utilisateur,
   },
   {
     path: '/questionnaires',
     name: 'Questionnaires',
-    component: Questionnaires,  // Route pour le composant Questionnaires
+    component: Questionnaires,
   },
   {
     path: '/dashboard',
     name: 'Dashboard',
-    component: Dashboard,  // Route pour le composant Dashboard
+    component: Dashboard,
+  },
+  {
+    path: '/edit-questions/:questionnaireId',
+    name: 'EditQuestions',
+    component: EditQuestions,
+    props: true,
+  },
+  {
+    path: '/evaluation/:questionnaireId',
+    name: 'Evaluation',
+    component: Evaluation,
+    props: true,
   },
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
-});
-
-// Navigation guard pour gérer l'accès via le code
-router.beforeEach((to, from, next) => {
-  if (to.path === '/' && to.query.code) {
-    const code = to.query.code;
-
-    if (code === '1234') {
-      next({ name: 'Collaborateur', query: { username: 'Collaborateur' } });
-    } else if (code === 'admin') {
-      next({ name: 'Administrateur', query: { username: 'Administrateur' } });
-    } else {
-      alert("Code incorrect");
-      next(false);
-    }
-  } else {
-    next();
-  }
 });
 
 export default router;

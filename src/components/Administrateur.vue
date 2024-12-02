@@ -4,7 +4,6 @@
       <h1>Administrateur</h1>
       <div class="user-info">
         <span>{{ username }}</span>
-        <!-- Bouton de déconnexion modifié -->
         <button class="logout-button" @click="logout">Déconnexion</button>
       </div>
     </div>
@@ -43,7 +42,6 @@ const loadComponent = (componentName) => {
   currentComponent.value = componentName;
 };
 
-// Logique de déconnexion (vous pouvez ajouter ici votre logique de déconnexion)
 const logout = () => {
   emit('logout');
 };
@@ -124,4 +122,9 @@ button:hover {
   margin-top: 120px;
   text-align: center;
 }
+.component-container {
+  margin-top: 120px;
+  text-align: center;
+}
 </style>
+
