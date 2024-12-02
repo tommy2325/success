@@ -22,6 +22,17 @@
               <button class="code-btn" @click="checkCode">OK</button>
             </div>
 
+            <div v-if="questionnaireData">
+              <h3>Nom du questionnaire :</h3>
+              <p>{{ questionnaireData.nom }}</p>
+              <h3>Temps du questionnaire :</h3>
+              <p>{{ questionnaireData.temps_de_passage }} minutes</p>
+              <h3>Note sur :</h3>
+              <p>{{ totalPoints }} points</p>
+
+              <button class="start-btn" @click="startEvaluation">Démarrer</button>
+            </div>
+
             <div class="questionnaire-list">
               <h3>Questionnaires réalisés :</h3>
               <table>
@@ -48,7 +59,7 @@
       </div>
     </div>
 
-    <DebutTest v-if="showDebutTest" />
+    <Evaluation v-if="showDebutTest" :username="username" :userId="userId" :questionnaire="questionnaireData" />
   </div>
 </template>
 
@@ -56,19 +67,25 @@
 import { ref, onMounted } from 'vue';
 import { supabase } from '../supabase';
 import { defineProps, defineEmits } from 'vue';
-import DebutTest from './DebutTest.vue'; 
+import Evaluation from './Evaluation.vue'; 
 
 const props = defineProps({
   username: {
     type: String,
+    required: true
+  },
+  userId: {
+    type: Number,
     required: true
   }
 });
 
 const emit = defineEmits();
 const passages = ref([]);
-const inputCode = ref(''); 
-const showDebutTest = ref(false); 
+const inputCode = ref('');
+const questionnaireData = ref(null);
+const showDebutTest = ref(false);
+const totalPoints = ref(0);
 
 const logout = () => {
   emit('logout');
@@ -83,6 +100,7 @@ const fetchPassages = async () => {
       note,
       Questionnaire (nom)
     `)
+    .eq('id_utilisateur', props.userId)
     .order('date', { ascending: false });
 
   if (error) {
@@ -102,13 +120,42 @@ const formatDate = (date) => {
   return new Date(date).toLocaleDateString('fr-FR', options);
 };
 
-// Fonction pour vérifier le code et afficher DebutTest si le code est "1234"
-const checkCode = () => {
-  if (inputCode.value === '1234') {
-    showDebutTest.value = true; // Affiche le composant DebutTest
-  } else {
-    alert('Code incorrect');
+const checkCode = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('questionnaire')
+      .select('id_questionnaire, nom, temps_de_passage, code')
+      .eq('code', inputCode.value)
+      .single();
+
+    if (error || !data) {
+      alert('Code incorrect');
+    } else {
+      questionnaireData.value = data; // Sauvegarde les données du questionnaire
+      totalPoints.value = await fetchTotalPoints(data.id_questionnaire); // Récupère les points totaux
+    }
+  } catch (error) {
+    console.error("Erreur lors de la vérification du code :", error);
+    alert('Erreur lors de la vérification du code');
   }
+};
+
+const fetchTotalPoints = async (questionnaireId) => {
+  const { data, error } = await supabase
+    .from('question')
+    .select('points')
+    .eq('id_questionnaire', questionnaireId);
+
+  if (error) {
+    console.error('Erreur lors de la récupération des points totaux :', error);
+    return 0;
+  } else {
+    return data.reduce((acc, question) => acc + question.points, 0);
+  }
+};
+
+const startEvaluation = () => {
+  showDebutTest.value = true;
 };
 
 onMounted(() => {
@@ -134,7 +181,7 @@ onMounted(() => {
   color: white;
   font-size: 2rem;
   flex-grow: 1;
-  text-align: center;  
+  text-align: center;
 }
 
 .user-info {
@@ -226,7 +273,6 @@ table {
 th, td {
   padding: 10px;
   text-align: left;
-  border: 1px solid #ccc;
 }
 
 .back-btn {
@@ -235,20 +281,15 @@ th, td {
   background-color: #c59edb;
   color: white;
   border: none;
-  border-radius: 5px;
   cursor: pointer;
 }
-.logout-button:hover {
-  background-color: #c0392b;
-}
-.logout-button {
-  background-color: #e74c3c;
+
+.start-btn {
+  padding: 10px 20px;
+  background-color: #c59edb;
   color: white;
-  padding: 8px 16px;
-  font-size: 14px;
   border: none;
-  border-radius: 5px;
   cursor: pointer;
-  margin-left: 10px;
+  margin-top: 20px;
 }
 </style>

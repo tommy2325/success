@@ -1,30 +1,38 @@
 <template>
-  <div class="modal">
+  <div class="modal" v-if="!questionnaireCreated">
     <div class="modal-content">
       <h2>Créer un nouveau questionnaire</h2>
-      <form @submit.prevent="createQuestionnaire">
-        <label>Nom du QCM:
-          <input v-model="qcm.nom" type="text" required />
-        </label>
-        
-        <label>Temps (minutes):
-          <input v-model="qcm.temps" type="number" min="1" required />
-        </label>
-        
-        <label>Mot de passe:
-          <input v-model="qcm.mot_de_passe" type="password" />
-        </label>
-        
-        <div class="modal-actions">
-          <button type="submit">Créer</button>
-          <button type="button" @click="cancel">Annuler</button>
-        </div>
-      </form>
-      
+
+      <!-- Formulaire de création du questionnaire -->
+      <div v-if="!questionnaireCreated">
+        <form @submit.prevent="createQuestionnaire">
+          <label>Nom du QCM:
+            <input v-model="qcm.nom" type="text" required />
+          </label>
+          
+          <label>Temps (minutes):
+            <input v-model="qcm.temps" type="number" min="1" required />
+          </label>
+          
+          <label>Mot de passe:
+            <input v-model="qcm.mot_de_passe" type="password" />
+          </label>
+          
+          <div class="modal-actions">
+            <button type="submit">Créer</button>
+            <button type="button" @click="cancel">Annuler</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Messages d'erreur et de succès -->
       <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
       <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
     </div>
   </div>
+
+  <!-- Component for creating questions -->
+  <CreationQu v-if="questionnaireCreated" />
 </template>
 
 <script setup>
@@ -33,6 +41,9 @@ import { supabase } from '../supabase';  // Importer la connexion à Supabase
 
 const emit = defineEmits(['refresh', 'cancel']);
 
+const router = useRouter();
+
+// Déclaration des variables liées au formulaire
 const qcm = ref({
   nom: '',
   temps: '',
@@ -56,12 +67,15 @@ const createQuestionnaire = async () => {
       temps_de_passage: qcm.value.temps
     }]);
 
+
     if (error) {
       errorMessage.value = `Erreur lors de la création du questionnaire: ${error.message}`;
     } else {
       successMessage.value = 'Questionnaire créé avec succès!';
       qcm.value = { nom: '', temps: '', mot_de_passe: '' };
       emit('refresh');
+      emit('showCreationQ', false); // Masque le modal et retourne à l'écran initial
+      router.push({ name: 'Questionnaires' }); // Redirige vers la page des questionnaires
     }
   } else {
     errorMessage.value = "Veuillez remplir tous les champs du formulaire.";
