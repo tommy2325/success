@@ -37,7 +37,6 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 import { supabase } from '../supabase';
 
 const props = defineProps({
@@ -55,7 +54,7 @@ const props = defineProps({
   }
 });
 
-const router = useRouter();
+const emit = defineEmits(['goBack']);
 const currentQuestion = ref(0);
 const questions = ref([]);
 const answers = ref([]);
@@ -117,7 +116,7 @@ const nextQuestion = () => {
 };
 
 const goBack = () => {
-  router.back();
+  emit('goBack');
 };
 
 onMounted(() => {
