@@ -273,6 +273,10 @@ table th, table td {
   background-color: #f9f9f9;
 }
 
+.data-table td button {
+    margin-right: 10px;
+  }
+
 input[type="text"] {
   padding: 10px;
   margin-top: 10px;

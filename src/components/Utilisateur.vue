@@ -295,11 +295,11 @@ button:hover {
 }
 
 .button-group button {
-    margin-right: 10px; /* Ajoute une marge de 10px à droite de chaque bouton */
+    margin-right: 10px;
 }
 
 .data-table td button {
-    margin-right: 10px; /* Ajoute une marge de 10px entre les boutons */
+    margin-right: 10px;
   }
 
 table {
