@@ -12,12 +12,14 @@
       <button @click="loadComponent('utilisateurs')">Utilisateurs</button>
       <button @click="loadComponent('questionnaires')">Questionnaires</button>
       <button @click="loadComponent('dashboard')">Dashboard</button>
+      <button @click="loadComponent('correction')">Correction</button>
     </div>
 
     <div class="component-container">
       <Utilisateur v-if="currentComponent === 'utilisateurs'" />
       <Questionnaires v-if="currentComponent === 'questionnaires'" />
       <Dashboard v-if="currentComponent === 'dashboard'" />
+      <Correction v-if="currentComponent === 'correction'" />
     </div>
   </div>
 </template>
@@ -27,6 +29,7 @@ import { ref } from 'vue';
 import Utilisateur from './Utilisateur.vue';
 import Questionnaires from './Questionnaires.vue';
 import Dashboard from './Dashboard.vue';
+import Correction from './ListeCorrection.vue';
 
 const props = defineProps({
   username: {
@@ -50,7 +53,7 @@ const logout = () => {
 <style scoped>
 .header {
   background-color: #c59edb;
-  width: 100%;
+  width: 98%;
   padding: 20px;
   position: fixed;
   top: 0;
@@ -122,9 +125,4 @@ button:hover {
   margin-top: 120px;
   text-align: center;
 }
-.component-container {
-  margin-top: 120px;
-  text-align: center;
-}
 </style>
-

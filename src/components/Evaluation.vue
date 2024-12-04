@@ -1,7 +1,7 @@
 <template>
     <div class="evaluation">
         <div class="header">
-            <h1>Évaluation</h1>
+            <h1>Évaluation </h1>
             <div class="user-info">
                 <span>{{ username }}</span>
                 <button @click="logout">Déconnexion</button>
@@ -139,8 +139,21 @@ export default {
                     return total;
                 }, 0);
 
+                // Récupérer l'id_utilisateur basé sur le username
+                const { data: userData, error: userError } = await supabase
+                    .from('utilisateur')
+                    .select('id_utilisateur')
+                    .eq('pseudo', props.username)
+                    .single();
+
+                if (userError) {
+                    throw new Error(userError.message);
+                }
+
+                const userId = userData.id_utilisateur;
+
                 await supabase.from('passer').insert({
-                    id_utilisateur: props.userId,
+                    id_utilisateur: userId,
                     id_questionnaire: questionnaire.value.id_questionnaire,
                     note: score,
                     date: new Date().toISOString().split('T')[0]
@@ -197,7 +210,7 @@ export default {
 
 .header {
     background-color: #c59edb;
-    width: 100%;
+    width: 98%;
     padding: 20px;
     position: fixed;
     top: 0;
@@ -227,16 +240,18 @@ export default {
 }
 
 .user-info button {
-    background-color: white;
-    color: #c59edb;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
+    background-color: #e74c3c;
+  color: white;
+  padding: 8px 16px;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 10px;
 }
 
 .user-info button:hover {
-    background-color: #b48ac6;
+    background-color: #c0392b;
 }
 
 .timer {

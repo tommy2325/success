@@ -54,10 +54,12 @@
             </div>
           </div>
         </div>
+
+        <button class="back-btn">Retour</button>
       </div>
     </div>
 
-    <Evaluation v-if="showDebutTest" :username="username" :questionnaire="questionnaireData" />
+    <Evaluation v-if="showDebutTest" :username="username" :userId="userId" :questionnaire="questionnaireData" />
   </div>
 </template>
 
@@ -70,6 +72,10 @@ import Evaluation from './Evaluation.vue';
 const props = defineProps({
   username: {
     type: String,
+    required: true
+  },
+  userId: {
+    type: Number,
     required: true
   }
 });
@@ -94,6 +100,7 @@ const fetchPassages = async () => {
       note,
       questionnaire (nom)
     `)
+    .eq('id_utilisateur', props.userId)
     .order('date', { ascending: false });
 
   if (error) {
@@ -159,7 +166,7 @@ onMounted(() => {
 <style scoped>
 .header {
   background-color: #c59edb;
-  width: 100%;
+  width: 98%;
   padding: 20px;
   position: fixed;
   top: 0;
@@ -186,6 +193,21 @@ onMounted(() => {
   margin-right: 20px;
   color: white;
   font-size: 1rem;
+}
+
+.logout-button {
+  background-color: #e74c3c;
+  color: white;
+  padding: 8px 16px;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.logout-button:hover {
+  background-color: #c0392b;
 }
 
 .collaborateur-container {
