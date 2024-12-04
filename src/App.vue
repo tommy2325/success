@@ -1,9 +1,11 @@
 <template>
   <div>
+    <!-- Barre supérieure pour déconnexion -->
     <div v-if="isLoggedIn" class="top-bar">
       <button @click="logout" class="logout-btn">Déconnexion</button>
     </div>
 
+    <!-- Formulaire de connexion -->
     <div v-if="!isLoggedIn" class="login-container">
       <div class="header">
         <h1>Success</h1>
@@ -24,6 +26,7 @@
       </div>
     </div>
   
+    <!-- Affichage selon le rôle de l'utilisateur -->
     <Administrateur v-if="isLoggedIn && userRole === 'administrateur'" :username="username" @logout="logout" />
     <Collaborateur v-if="isLoggedIn && userRole === 'collaborateur'" :username="username" @logout="logout" />
   </div>
@@ -42,6 +45,15 @@ const password = ref('');
 const isLoggedIn = ref(false);
 const userRole = ref(null);
 const router = useRouter();
+
+// Vérifier la session existante au chargement
+const storedSession = localStorage.getItem('session');
+if (storedSession) {
+  const sessionData = JSON.parse(storedSession);
+  isLoggedIn.value = true;
+  userRole.value = sessionData.role;
+  username.value = sessionData.username;
+}
 
 const submitForm = async () => {
   try {
@@ -62,6 +74,19 @@ const submitForm = async () => {
       if (validPassword) {
         userRole.value = data.appartenir[0].groupe.role;
         isLoggedIn.value = true;
+
+        // Enregistrer la session
+        localStorage.setItem('session', JSON.stringify({
+          username: username.value,
+          role: userRole.value
+        }));
+
+        // Rediriger selon le rôle
+        if (userRole.value === 'administrateur') {
+          router.push('/administrateur');
+        } else if (userRole.value === 'collaborateur') {
+          router.push('/collaborateur');
+        }
       } else {
         alert('Nom d’utilisateur ou mot de passe incorrect');
       }
@@ -76,6 +101,12 @@ const logout = () => {
   userRole.value = null;
   username.value = '';
   password.value = '';
+
+  // Supprimer la session
+  localStorage.removeItem('session');
+
+  // Rediriger vers la page de connexion
+  router.push('/');
 };
 </script>
 
