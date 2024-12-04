@@ -210,7 +210,7 @@ export default {
 
 .header {
     background-color: #c59edb;
-    width: 100%;
+    width: 98%;
     padding: 20px;
     position: fixed;
     top: 0;
@@ -240,16 +240,18 @@ export default {
 }
 
 .user-info button {
-    background-color: white;
-    color: #c59edb;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
+    background-color: #e74c3c;
+  color: white;
+  padding: 8px 16px;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 10px;
 }
 
 .user-info button:hover {
-    background-color: #b48ac6;
+    background-color: #c0392b;
 }
 
 .timer {

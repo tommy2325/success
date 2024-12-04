@@ -294,6 +294,14 @@ button:hover {
   background-color: #b48ac6;
 }
 
+.button-group button {
+    margin-right: 10px; /* Ajoute une marge de 10px à droite de chaque bouton */
+}
+
+.data-table td button {
+    margin-right: 10px; /* Ajoute une marge de 10px entre les boutons */
+  }
+
 table {
   width: 100%;
   border-collapse: collapse;
