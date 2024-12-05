@@ -44,18 +44,23 @@ const router = useRouter();
 const handleLogin = async () => {
   try {
     await authStore.login(username.value, password.value);
+
     // Redirection après connexion
     if (authStore.role === 'administrateur') {
-      router.push('/administrateur'); // Redirige vers la section admin
+      router.push('/administrateur'); // Redirige vers la page Admin
+    } else if (authStore.role === 'collaborateur') {
+      router.push('/collaborateur'); // Redirige vers la page Collaborateur
+    } else {
+      alert("Votre rôle n'est pas reconnu.");
     }
   } catch (error) {
-    alert(error.message);
+    alert('Erreur lors de la connexion : ' + error.message);
   }
 };
 
 const logout = () => {
   authStore.logout();
-  router.push('/'); // Retourne à la page de connexion
+  router.push('/'); // Retour à la page de connexion
 };
 </script>
 
