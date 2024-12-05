@@ -1,18 +1,18 @@
 <template>
   <div>
     <!-- Barre supérieure pour déconnexion -->
-    <div v-if="isLoggedIn" class="top-bar">
+    <div v-if="authStore.isAuthenticated" class="top-bar">
       <button @click="logout" class="logout-btn">Déconnexion</button>
     </div>
 
     <!-- Formulaire de connexion -->
-    <div v-if="!isLoggedIn" class="login-container">
+    <div v-if="!authStore.isAuthenticated" class="login-container">
       <div class="header">
         <h1>Success</h1>
       </div>
       <div class="login-box">
         <h2>Connexion</h2>
-        <form @submit.prevent="submitForm">
+        <form @submit.prevent="handleLogin">
           <div class="input-group">
             <label for="username">Nom d'utilisateur:</label>
             <input type="text" v-model="username" id="username" required />
@@ -25,88 +25,37 @@
         </form>
       </div>
     </div>
-  
-    <!-- Affichage selon le rôle de l'utilisateur -->
-    <Administrateur v-if="isLoggedIn && userRole === 'administrateur'" :username="username" @logout="logout" />
-    <Collaborateur v-if="isLoggedIn && userRole === 'collaborateur'" :username="username" @logout="logout" />
+
+    <!-- Contenu des routes -->
+    <router-view v-if="authStore.isAuthenticated" />
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
+import { useAuthStore } from './store/authStore';
 import { useRouter } from 'vue-router';
-import { supabase } from './supabase';
-import bcrypt from 'bcryptjs';
-import Administrateur from './components/Administrateur.vue';
-import Collaborateur from './components/Collaborateur.vue';
 
 const username = ref('');
 const password = ref('');
-const isLoggedIn = ref(false);
-const userRole = ref(null);
+const authStore = useAuthStore();
 const router = useRouter();
 
-// Vérifier la session existante au chargement
-const storedSession = localStorage.getItem('session');
-if (storedSession) {
-  const sessionData = JSON.parse(storedSession);
-  isLoggedIn.value = true;
-  userRole.value = sessionData.role;
-  username.value = sessionData.username;
-}
-
-const submitForm = async () => {
+const handleLogin = async () => {
   try {
-    const { data, error } = await supabase
-      .from('utilisateur')
-      .select(`*, appartenir (groupe (role))`)
-      .eq('pseudo', username.value)
-      .single();
-
-    if (error) {
-      console.error('Erreur lors de la récupération des données:', error);
-      alert('Nom d’utilisateur ou mot de passe incorrect');
-      return;
+    await authStore.login(username.value, password.value);
+    // Redirection après connexion
+    if (authStore.role === 'administrateur') {
+      router.push('/administrateur'); // Redirige vers la section admin
     }
-
-    if (data) {
-      const validPassword = await bcrypt.compare(password.value, data.mot_de_passe);
-      if (validPassword) {
-        userRole.value = data.appartenir[0].groupe.role;
-        isLoggedIn.value = true;
-
-        // Enregistrer la session
-        localStorage.setItem('session', JSON.stringify({
-          username: username.value,
-          role: userRole.value
-        }));
-
-        // Rediriger selon le rôle
-        if (userRole.value === 'administrateur') {
-          router.push('/administrateur');
-        } else if (userRole.value === 'collaborateur') {
-          router.push('/collaborateur');
-        }
-      } else {
-        alert('Nom d’utilisateur ou mot de passe incorrect');
-      }
-    }
-  } catch (err) {
-    console.error('Erreur lors de la soumission:', err);
+  } catch (error) {
+    alert(error.message);
   }
 };
 
 const logout = () => {
-  isLoggedIn.value = false;
-  userRole.value = null;
-  username.value = '';
-  password.value = '';
-
-  // Supprimer la session
-  localStorage.removeItem('session');
-
-  // Rediriger vers la page de connexion
-  router.push('/');
+  authStore.logout();
+  router.push('/'); // Retourne à la page de connexion
 };
 </script>
 
@@ -176,5 +125,25 @@ input {
 
 .submit-btn:hover {
   background-color: #b48ac6;
+}
+
+.top-bar {
+  background-color: #c59edb;
+  padding: 10px;
+  text-align: right;
+}
+
+.logout-btn {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background-color: #c0392b;
 }
 </style>
