@@ -25,27 +25,24 @@
         </form>
       </div>
 
-      <!-- Messages d'erreur et de succès -->
       <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
       <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
     </div>
   </div>
 
-  <!-- Component for creating questions -->
   <CreationQu v-if="questionnaireCreated" />
 </template>
 
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';  // Importer le hook useRouter
-import { supabase } from '../supabase';  // Importer la connexion à Supabase
-import CreationQu from './CreationQu.vue';  // Importer le composant CreationQu
+import { useRouter } from 'vue-router';  
+import { supabase } from '../supabase'; 
+import CreationQu from './CreationQu.vue'; 
 
 const emit = defineEmits(['refresh', 'cancel', 'showCreationQ']);
 
 const router = useRouter();
 
-// Déclaration des variables liées au formulaire
 const qcm = ref({
   nom: '',
   temps: '',
