@@ -31,10 +31,9 @@ import { useRouter } from 'vue-router';
 const authStore = useAuthStore();
 const router = useRouter();
 
-// Fonction pour gérer la déconnexion
 const logout = () => {
   authStore.logout();
-  router.push('/'); // Retourne à la page de connexion
+  router.push('/');
 };
 </script>
 
