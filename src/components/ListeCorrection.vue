@@ -103,8 +103,25 @@ const mapPassages = () => {
   }));
 };
 
-const showCorrection = (passage) => {
-  selectedPassage.value = passage;
+const showCorrection = async (passage) => {
+  try {
+    const { data, error } = await supabase
+      .from('questionnaire')
+      .select('id_questionnaire')
+      .eq('nom', passage.nom_questionnaire)
+      .single();
+
+    if (error) {
+      console.error("Erreur lors de la récupération de l'ID du questionnaire :", error);
+    } else {
+      selectedPassage.value = {
+        ...passage,
+        id_questionnaire: data.id_questionnaire
+      };
+    }
+  } catch (error) {
+    console.error("Erreur lors de la récupération de l'ID du questionnaire :", error);
+  }
 };
 
 const formatDate = (date) => {
@@ -142,7 +159,6 @@ td:hover {
   background-color: #f9f9f9;
 }
 
-
 .table-container {
   max-height: 400px; 
   overflow-y: auto; 
@@ -151,7 +167,6 @@ td:hover {
   margin-top: 20px;
 }
 
-/* Optionnel : rendre l'en-tête sticky */
 thead th {
   position: sticky;
   top: 0;
