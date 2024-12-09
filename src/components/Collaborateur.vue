@@ -58,7 +58,6 @@
         <button class="back-btn">Retour</button>
       </div>
     </div>
-
     <Evaluation v-if="showDebutTest" :username="username" :userId="userId" :questionnaire="questionnaireData" />
   </div>
 </template>
@@ -168,9 +167,6 @@ onMounted(() => {
   background-color: #c59edb;
   width: 98%;
   padding: 20px;
-  position: fixed;
-  top: 0;
-  left: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -180,8 +176,6 @@ onMounted(() => {
   margin: 0;
   color: white;
   font-size: 2rem;
-  flex-grow: 1;
-  text-align: center;
 }
 
 .user-info {
@@ -196,25 +190,19 @@ onMounted(() => {
 }
 
 .logout-button {
-  background-color: #e74c3c;
-  color: white;
-  padding: 8px 16px;
-  font-size: 14px;
+  background-color: white;
+  color: #c59edb;
   border: none;
+  padding: 10px;
   border-radius: 5px;
   cursor: pointer;
-  margin-left: 10px;
 }
 
 .logout-button:hover {
-  background-color: #c0392b;
+  background-color: #b48ac6;
 }
 
 .collaborateur-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-family: Arial, sans-serif;
   background-color: #f5f5f5;
   padding: 80px 20px 20px; 
 }
