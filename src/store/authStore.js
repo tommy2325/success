@@ -7,6 +7,7 @@ export const useAuthStore = defineStore('auth', {
     role: null,
     isAuthenticated: false,
   }),
+
   actions: {
     async login(username, password) {
       const { data, error } = await supabase
@@ -27,10 +28,15 @@ export const useAuthStore = defineStore('auth', {
         throw new Error("Impossible de déterminer le rôle de l'utilisateur.");
       }
 
-      // Sauvegarder la session
+      // Sauvegarder la session avec une date d'expiration
+      const expiry = Date.now() + 15 * 60 * 1000; // TTL : 15 minutes
       localStorage.setItem(
         'session',
-        JSON.stringify({ username: this.user, role: this.role })
+        JSON.stringify({
+          username: this.user,
+          role: this.role,
+          expiry: expiry,
+        })
       );
     },
 
@@ -45,6 +51,15 @@ export const useAuthStore = defineStore('auth', {
       const storedSession = localStorage.getItem('session');
       if (storedSession) {
         const sessionData = JSON.parse(storedSession);
+
+        // Vérifier si la session a expiré
+        if (Date.now() > sessionData.expiry) {
+          this.logout(); // Déconnecter si la session est expirée
+          alert('Votre session a expiré. Veuillez vous reconnecter.');
+          return;
+        }
+
+        // Charger les données de session si elles sont encore valides
         this.user = sessionData.username;
         this.role = sessionData.role;
         this.isAuthenticated = true;

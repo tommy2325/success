@@ -1,9 +1,5 @@
 <template>
   <div>
-    <!-- Barre supérieure pour déconnexion -->
-    <div v-if="authStore.isAuthenticated" class="top-bar">
-      <button @click="logout" class="logout-btn">Déconnexion</button>
-    </div>
 
     <!-- Formulaire de connexion -->
     <div v-if="!authStore.isAuthenticated" class="login-container">
