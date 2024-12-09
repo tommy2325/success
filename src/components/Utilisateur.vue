@@ -28,37 +28,40 @@
         <CreationG @refresh="fetchGroupes" @cancel="hideCreationGroupForm" />
       </div>
 
-      <table v-else class="data-table">
-        <thead>
-          <tr>
-            <th>
-              <input type="checkbox" v-model="selectAll" @change="toggleSelectAll" />
-            </th>
-            <th>Nom d'utilisateur</th>
-            <th>Groupe</th>
-            <th>Rôle</th>
-            <th>Options</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="utilisateur in filteredUtilisateurs" :key="utilisateur.id_utilisateur">
-            <td>
-              <input
-                type="checkbox"
-                :value="utilisateur.id_utilisateur"
-                v-model="selectedUsers"
-              />
-            </td>
-            <td>{{ utilisateur.pseudo }}</td>
-            <td>{{ utilisateur.appartenir[0]?.groupe.nom || 'N/A' }}</td>
-            <td>{{ utilisateur.appartenir[0]?.groupe.role || 'N/A' }}</td>
-            <td>
-              <button @click="editUser(utilisateur)">Modifier</button>
-              <button @click="confirmDeleteUser(utilisateur)">Supprimer</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <!-- Tableau déroulant avec scroll -->
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>
+                <input type="checkbox" v-model="selectAll" @change="toggleSelectAll" />
+              </th>
+              <th>Nom d'utilisateur</th>
+              <th>Groupe</th>
+              <th>Rôle</th>
+              <th>Options</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="utilisateur in filteredUtilisateurs" :key="utilisateur.id_utilisateur">
+              <td>
+                <input
+                  type="checkbox"
+                  :value="utilisateur.id_utilisateur"
+                  v-model="selectedUsers"
+                />
+              </td>
+              <td>{{ utilisateur.pseudo }}</td>
+              <td>{{ utilisateur.appartenir[0]?.groupe.nom || 'N/A' }}</td>
+              <td>{{ utilisateur.appartenir[0]?.groupe.role || 'N/A' }}</td>
+              <td>
+                <button @click="editUser(utilisateur)">Modifier</button>
+                <button @click="confirmDeleteUser(utilisateur)">Supprimer</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </section>
 
     <!-- Modale de modification utilisateur -->
@@ -137,6 +140,11 @@ const fetchGroupes = async () => {
   }
 };
 
+// Fonction pour afficher/masquer la ligne détaillée
+const toggleRow = (index) => {
+  expandedRowIndex.value = expandedRowIndex.value === index ? null : index;
+};
+
 // Fonction pour afficher le formulaire de création
 const showCreationForm = () => {
   showCreation.value = true;
@@ -208,39 +216,6 @@ const updateUser = async () => {
   }
 };
 
-// Fonction pour confirmer la suppression d'un utilisateur
-const confirmDeleteUser = (utilisateur) => {
-  usersToDelete.value = [utilisateur];
-  showConfirmModal.value = true;
-};
-
-// Fonction pour confirmer la suppression des utilisateurs sélectionnés
-const confirmDeleteSelectedUsers = () => {
-  usersToDelete.value = utilisateurs.value.filter(user => selectedUsers.value.includes(user.id_utilisateur));
-  showConfirmModal.value = true;
-};
-
-// Fonction pour supprimer les utilisateurs
-const deleteUsers = async () => {
-  const { error } = await supabase
-    .from("utilisateur")
-    .delete()
-    .in("id_utilisateur", usersToDelete.value.map(user => user.id_utilisateur));
-
-  if (error) {
-    console.error("Erreur lors de la suppression des utilisateurs:", error);
-  } else {
-    fetchUtilisateurs();
-    closeConfirmModal();
-  }
-};
-
-// Fonction pour fermer la modale de confirmation
-const closeConfirmModal = () => {
-  showConfirmModal.value = false;
-};
-
-// Fonction pour gérer le changement de la case "tout cocher"
 const toggleSelectAll = () => {
   if (selectAll.value) {
     selectedUsers.value = utilisateurs.value.map((utilisateur) => utilisateur.id_utilisateur);
@@ -249,15 +224,12 @@ const toggleSelectAll = () => {
   }
 };
 
-// Fonction de recherche
 const searchUser = () => {
-  // Met à jour la liste des utilisateurs filtrés à chaque changement dans le champ de recherche
   filteredUtilisateurs.value = utilisateurs.value.filter((utilisateur) =>
     utilisateur.pseudo.toLowerCase().includes(searchQuery.value.toLowerCase())
   );
 };
 
-// Utilisateur filtré en fonction de la recherche
 const filteredUtilisateurs = computed(() => {
   return utilisateurs.value.filter((utilisateur) =>
     utilisateur.pseudo.toLowerCase().includes(searchQuery.value.toLowerCase())
@@ -284,84 +256,56 @@ button {
   border: none;
   padding: 10px;
   color: white;
-  font-size: 1rem;
-  border-radius: 5px;
+  font-size: 16px;
   cursor: pointer;
-  margin-top: 10px;
+  margin: 5px;
+  border-radius: 5px;
 }
 
 button:hover {
-  background-color: #b48ac6;
+  background-color: #9e66d3;
 }
 
-.button-group button {
-    margin-right: 10px;
+.table-container {
+  max-height: 400px;
+  overflow-y: auto;
 }
 
-.data-table td button {
-    margin-right: 10px;
-  }
-
-table {
+.data-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
 }
 
-table th, table td {
-  border: 1px solid #ccc;
-  padding: 10px;
+.data-table th, .data-table td {
+  padding: 8px;
   text-align: left;
+  border-bottom: 1px solid #ddd;
 }
 
 .data-table th {
-  background-color: #f0f0f0;
-}
-
-.data-table tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-input[type="text"] {
-  padding: 10px;
-  margin-top: 10px;
-  width: 200px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-input[type="checkbox"] {
-  cursor: pointer;
+  background-color: #f4f4f4;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .modal {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background-color: white;
   padding: 20px;
   border-radius: 10px;
-  width: 300px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
 }
 
-input[type="text"],
-input[type="password"],
-select {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 10px;
+.modal-content {
+  text-align: center;
 }
 
-input[type="text"] {
-  margin-top: 10px;
+.modal button {
+  margin-top: 20px;
 }
 </style>
