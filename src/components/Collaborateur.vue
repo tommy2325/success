@@ -5,7 +5,7 @@
         <h1>Accueil Collaborateur</h1>
         <div class="user-info">
           <span>{{ username }}</span>
-          <button class="logout-button" @click="logout">Déconnexion</button>
+          <button @click="logout" class="logout-button">Déconnexion</button>
         </div>
       </div>
 
@@ -88,7 +88,8 @@ const showDebutTest = ref(false);
 const totalPoints = ref(0);
 
 const logout = () => {
-  emit('logout');
+  authStore.logout();
+  router.push('/');
 };
 
 const fetchPassages = async () => {
