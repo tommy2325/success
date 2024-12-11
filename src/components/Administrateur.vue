@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- Barre supérieure avec le bouton de déconnexion -->
     <div class="header">
       <h1>Administrateur</h1>
       <div class="user-info">
@@ -9,7 +8,6 @@
       </div>
     </div>
 
-    <!-- Navigation pour les différentes sections -->
     <div class="main-actions">
       <router-link to="/administrateur/utilisateurs" class="nav-button">Utilisateurs</router-link>
       <router-link to="/administrateur/questionnaires" class="nav-button">Questionnaires</router-link>
@@ -17,7 +15,6 @@
       <router-link to="/administrateur/correction" class="nav-button">Correction</router-link>
     </div>
 
-    <!-- Affichage des sous-routes -->
     <div class="component-container">
       <router-view />
     </div>

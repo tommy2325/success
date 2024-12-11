@@ -7,12 +7,13 @@ import Utilisateurs from '../components/Utilisateur.vue';
 import Questionnaires from '../components/Questionnaires.vue';
 import Dashboard from '../components/Dashboard.vue';
 import Correction from '../components/Correction.vue';
-
-/// sous composants sections
+import ListeCorrection from '../components/ListeCorrection.vue';
 import EditQuestions from '../components/EditQuestions.vue';
 import Evaluation from '../components/Evaluation.vue';
-
-import ListeCorrection from '../components/ListeCorrection.vue';
+import CreationQ from '../components/CreationQ.vue';
+import CreationQu from '../components/CreationQu.vue';
+import CreationU from '../components/CreationU.vue';
+import CreationG from '../components/CreationG.vue';
 
 const routes = [
   {
@@ -41,8 +42,35 @@ const routes = [
       },
       {
         path: 'correction',
-        name: 'Correction',
+        name: 'ListeCorrection',
         component: ListeCorrection,
+      },
+      {
+        path: 'edit-questions/:questionnaireId',
+        name: 'EditQuestions',
+        component: EditQuestions,
+        props: true,
+      },
+      {
+        path: 'creation-questionnaire',
+        name: 'CreationQ',
+        component: CreationQ,
+      },
+      {
+        path: 'creation-questions/:id_questionnaire',
+        name: 'CreationQu',
+        component: CreationQu,
+        props: true,
+      },
+      {
+        path: 'creation-utilisateur',
+        name: 'CreationU',
+        component: CreationU,
+      },
+      {
+        path: 'creation-groupe',
+        name: 'CreationG',
+        component: CreationG,
       },
     ],
   },
@@ -50,6 +78,20 @@ const routes = [
     path: '/collaborateur',
     name: 'Collaborateur',
     component: Collaborateur,
+    children: [
+      {
+        path: 'evaluation/:id_questionnaire',
+        name: 'Evaluation',
+        component: Evaluation,
+        props: true,
+      },
+    ],
+  },
+  {
+    path: '/correction/:idQuestionnaire/:idUtilisateur',
+    name: 'Correction',
+    component: Correction,
+    props: true,
   },
 ];
 
