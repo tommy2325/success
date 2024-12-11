@@ -1,65 +1,52 @@
 <template>
   <div>
+    <!-- Barre supérieure avec le bouton de déconnexion -->
     <div class="header">
       <h1>Administrateur</h1>
       <div class="user-info">
-        <span>{{ username }}</span>
-        <button class="logout-button" @click="logout">Déconnexion</button>
+        <span>{{ authStore.user }}</span>
+        <button @click="logout" class="logout-button">Déconnexion</button>
       </div>
     </div>
 
+    <!-- Navigation pour les différentes sections -->
     <div class="main-actions">
-      <button @click="loadComponent('utilisateurs')">Utilisateurs</button>
-      <button @click="loadComponent('questionnaires')">Questionnaires</button>
-      <button @click="loadComponent('dashboard')">Dashboard</button>
-      <button @click="loadComponent('correction')">Correction</button>
+      <router-link to="/administrateur/utilisateurs" class="nav-button">Utilisateurs</router-link>
+      <router-link to="/administrateur/questionnaires" class="nav-button">Questionnaires</router-link>
+      <router-link to="/administrateur/dashboard" class="nav-button">Dashboard</router-link>
+      <router-link to="/administrateur/correction" class="nav-button">Correction</router-link>
     </div>
 
+    <!-- Affichage des sous-routes -->
     <div class="component-container">
-      <Utilisateur v-if="currentComponent === 'utilisateurs'" />
-      <Questionnaires v-if="currentComponent === 'questionnaires'" />
-      <Dashboard v-if="currentComponent === 'dashboard'" />
-      <Correction v-if="currentComponent === 'correction'" />
+      <router-view />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import Utilisateur from './Utilisateur.vue';
-import Questionnaires from './Questionnaires.vue';
-import Dashboard from './Dashboard.vue';
-import Correction from './ListeCorrection.vue';
+import { useAuthStore } from '@/store/authStore';
+import { useRouter } from 'vue-router';
 
-const props = defineProps({
-  username: {
-    type: String,
-    required: true
-  }
-});
-
-const emit = defineEmits();
-const currentComponent = ref(null);
-
-const loadComponent = (componentName) => {
-  currentComponent.value = componentName;
-};
+const authStore = useAuthStore();
+const router = useRouter();
 
 const logout = () => {
-  emit('logout');
+  authStore.logout();
+  router.push('/');
 };
 </script>
 
 <style scoped>
 .header {
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   width: 98%;
   padding: 20px;
   position: fixed;
   top: 0;
   left: 0;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
 }
 
@@ -68,15 +55,11 @@ const logout = () => {
   color: white;
   font-size: 2rem;
   text-align: center;
-  flex-grow: 1;
 }
 
 .user-info {
   display: flex;
   align-items: center;
-  position: absolute;
-  top: 20px;
-  right: 20px;
 }
 
 .user-info span {
@@ -93,7 +76,6 @@ const logout = () => {
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  margin-left: 10px;
 }
 
 .logout-button:hover {
@@ -104,25 +86,32 @@ const logout = () => {
   display: flex;
   justify-content: center;
   gap: 20px;
-  margin-top: 100px;
+  margin-top: 50px;
 }
 
-button {
-  background-color: #b48ac6;
-  color: white;
-  padding: 20px 40px;
-  border: none;
+.nav-button {
+  text-decoration: none;
+  font-family: 'Roboto', sans-serif; /* Police moderne */
+  font-size: 2.5rem; /* Taille impressionnante */
+  font-weight: bold; /* Texte épais */
+  color: #b5b2b2; /* Couleur blanche pour le texte */
+  text-shadow: 2px 2px 1px rgba(0, 0, 0, 1); /* Ombre subtile pour le texte */
+  letter-spacing: 2px; /* Espacement entre les lettres */
+  text-transform: uppercase; /* Majuscules */  padding: 10px 20px;
   border-radius: 5px;
+  font-size: 16px;
+  text-align: center;
   cursor: pointer;
-  font-size: 24px;
+  display: inline-block;
 }
 
-button:hover {
-  background-color: #b48ac6;
+.nav-button:hover {
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
 }
 
 .component-container {
-  margin-top: 120px;
+  margin-top: 20px;
+  padding: 20px;
   text-align: center;
 }
 </style>

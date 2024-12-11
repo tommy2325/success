@@ -45,7 +45,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { supabase } from '../supabase';
 import { useRouter } from 'vue-router';
 import Questionnaires from './Questionnaires.vue';
@@ -69,6 +69,7 @@ const currentQuestion = ref(questions.value[currentQuestionIndex.value]);
 
 const errorMessage = ref(null);
 const successMessage = ref(null);
+const latestQuestionnaireId = ref(null);
 
 const addResponse = () => {
   if (currentQuestion.value.reponses.length < 6) {
@@ -156,7 +157,7 @@ const validateAllQuestions = async () => {
       if (responseError) throw new Error(responseError.message);
 
       const { error: containError } = await supabase.from('contenir').insert([
-        { id_question: questionId, id_questionnaire: 1 }
+        { id_question: questionId, id_questionnaire: latestQuestionnaireId.value }
       ]);
       if (containError) throw new Error(containError.message);
     }
@@ -166,6 +167,21 @@ const validateAllQuestions = async () => {
     replaceComponent();
   } catch (error) {
     errorMessage.value = `Erreur: ${error.message}`;
+  }
+};
+
+const fetchLatestQuestionnaireId = async () => {
+  const { data, error } = await supabase
+    .from('questionnaire')
+    .select('id_questionnaire')
+    .order('id_questionnaire', { ascending: false })
+    .limit(1)
+    .single();
+
+  if (error) {
+    console.error('Erreur lors de la récupération du dernier questionnaire :', error);
+  } else {
+    latestQuestionnaireId.value = data.id_questionnaire;
   }
 };
 
@@ -180,6 +196,10 @@ const replaceComponent = () => {
 const goToQuestionnaireCreation = () => {
   router.push('/creation-questionnaire');
 };
+
+onMounted(() => {
+  fetchLatestQuestionnaireId();
+});
 </script>
 
 

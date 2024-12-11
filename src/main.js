@@ -1,19 +1,15 @@
 import { createApp } from 'vue';
+import { createPinia } from 'pinia';
 import App from './App.vue';
 import router from './router';
-
-// Vérifier la session
-const storedSession = localStorage.getItem('session');
-if (storedSession) {
-  const sessionData = JSON.parse(storedSession);
-  // Rediriger selon le rôle stocké
-  if (sessionData.role === 'administrateur') {
-    router.push('/administrateur');
-  } else if (sessionData.role === 'collaborateur') {
-    router.push('/collaborateur');
-  }
-}
+import { useAuthStore } from './store/authStore';
 
 const app = createApp(App);
+const pinia = createPinia();
+app.use(pinia);
 app.use(router);
+
+const authStore = useAuthStore();
+authStore.loadSession(); // Charger la session utilisateur avant de monter l'app
+
 app.mount('#app');

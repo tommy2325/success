@@ -1,26 +1,36 @@
 <template>
+  <header>
+    <h1>Correction des Questionnaires</h1>
+  </header>
   <div>
-    <h2>Correction des Questionnaires</h2>
-    <table v-if="!selectedPassage">
-      <thead>
-        <tr>
-          <th>Nom du Questionnaire</th>
-          <th>Utilisateur</th>
-          <th>Note</th>
-          <th>Date</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="passage in passages" :key="passage.id_passer">
-          <td @click="showCorrection(passage)">{{ passage.nom_questionnaire }}</td>
-          <td>{{ passage.utilisateur }}</td>
-          <td>{{ passage.note }}</td>
-          <td>{{ formatDate(passage.date) }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-container" v-if="!selectedPassage">
+      <table>
+        <thead>
+          <tr>
+            <th>Nom du Questionnaire</th>
+            <th>Utilisateur</th>
+            <th>Note</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="passage in passages" :key="passage.id_passer">
+            <td @click="showCorrection(passage)">{{ passage.nom_questionnaire }}</td>
+            <td>{{ passage.utilisateur }}</td>
+            <td>{{ passage.note }}</td>
+            <td>{{ formatDate(passage.date) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-    <Correction v-if="selectedPassage" :username="username" :idQuestionnaire="selectedPassage.id_questionnaire" :idUtilisateur="selectedPassage.id_utilisateur" @goBack="selectedPassage = null" />
+    <Correction
+      v-if="selectedPassage"
+      :username="username"
+      :idQuestionnaire="selectedPassage.id_questionnaire"
+      :idUtilisateur="selectedPassage.id_utilisateur"
+      @goBack="selectedPassage = null"
+    />
   </div>
 </template>
 
@@ -33,7 +43,7 @@ const passages = ref([]);
 const selectedPassage = ref(null);
 const utilisateurs = ref({});
 const questionnaires = ref({});
-const username = ref(''); 
+const username = ref(''); // Remplacez par le nom d'utilisateur actuel
 
 const fetchPassages = async () => {
   const { data, error } = await supabase
@@ -110,10 +120,18 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* Styles pour le tableau */
+header {
+  background-color: #c59edb;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  border-radius: 7px;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
 }
 
 th, td {
@@ -132,5 +150,22 @@ td {
 
 td:hover {
   background-color: #f9f9f9;
+}
+
+
+.table-container {
+  max-height: 580px; 
+  overflow-y: auto; 
+  overflow-x: hidden; 
+  border: 1px solid #ddd; 
+  margin-top: 20px;
+}
+
+/* Optionnel : rendre l'en-tête sticky */
+thead th {
+  position: sticky;
+  top: 0;
+  background-color: #fff;
+  z-index: 2;
 }
 </style>

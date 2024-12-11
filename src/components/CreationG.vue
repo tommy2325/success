@@ -127,7 +127,7 @@ onMounted(() => {
 }
 
 button {
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   border: none;
   padding: 10px 15px;
   color: white;

@@ -41,39 +41,42 @@
         />
       </div>
 
-      <table v-if="!showCreation && !showEditForm" class="data-table">
-        <thead>
-          <tr>
-            <th>
-              <input type="checkbox" v-model="selectAll" @change="toggleSelectAll" />
-            </th>
-            <th>Nom</th>
-            <th>Date de création</th>
-            <th>Temps</th>
-            <th>Code</th>
-            <th>Options</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(questionnaire, index) in filteredQuestionnaires" :key="questionnaire.id_questionnaire">
-            <td>
-              <input 
-                type="checkbox" 
-                :checked="selectedQuestionnaires.includes(questionnaire.id_questionnaire)"
-                @change="toggleQuestionnaireSelection(questionnaire.id_questionnaire)"
-              />
-            </td>
-            <td>{{ questionnaire.nom }}</td>
-            <td>{{ questionnaire.date_creation }}</td>
-            <td>{{ questionnaire.temps_de_passage }} minutes</td>
-            <td>{{ questionnaire.code }}</td>
-            <td>
-              <button @click="editQuestionnaire(questionnaire.id_questionnaire)">Modifier</button>
-              <button @click="confirmDeleteQuestionnaire(questionnaire)">Supprimer</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <!-- Tableau avec scroll -->
+      <div class="table-container">
+        <table v-if="!showCreation && !showEditForm" class="data-table">
+          <thead>
+            <tr>
+              <th>
+                <input type="checkbox" v-model="selectAll" @change="toggleSelectAll" />
+              </th>
+              <th>Nom</th>
+              <th>Date de création</th>
+              <th>Temps</th>
+              <th>Code</th>
+              <th>Options</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(questionnaire, index) in filteredQuestionnaires" :key="questionnaire.id_questionnaire">
+              <td>
+                <input 
+                  type="checkbox" 
+                  :checked="selectedQuestionnaires.includes(questionnaire.id_questionnaire)"
+                  @change="toggleQuestionnaireSelection(questionnaire.id_questionnaire)"
+                />
+              </td>
+              <td>{{ questionnaire.nom }}</td>
+              <td>{{ questionnaire.date_creation }}</td>
+              <td>{{ questionnaire.temps_de_passage }} minutes</td>
+              <td>{{ questionnaire.code }}</td>
+              <td>
+                <button @click="editQuestionnaire(questionnaire.id_questionnaire)">Modifier</button>
+                <button @click="confirmDeleteQuestionnaire(questionnaire)">Supprimer</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </section>
 
     <!-- Confirmation de suppression -->
@@ -165,7 +168,7 @@ const updateQuestionnaire = async () => {
 };
 
 const editQuestions = () => {
-  showEditQuestions.value = true; // Afficher EditQuestions.vue
+  router.push('editquestions.vue '); // Redirige vers la page "EditQuestions"
 };
 
 const confirmDeleteQuestionnaire = (questionnaire) => {
@@ -226,10 +229,11 @@ onMounted(() => {
 
 <style scoped>
 header {
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   color: white;
   padding: 20px;
   text-align: center;
+  border-radius: 7px;
 }
 
 .button-group {
@@ -239,7 +243,7 @@ header {
 }
 
 button {
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   border: none;
   padding: 10px;
   color: white;
@@ -253,10 +257,15 @@ button:hover {
   background-color: #b48ac6;
 }
 
+.table-container {
+  max-height: 420px; /* Hauteur maximale du tableau */
+  overflow-y: auto; /* Permet le défilement vertical */
+  margin-top: 20px;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
 }
 
 table th, table td {
@@ -267,18 +276,27 @@ table th, table td {
 
 .data-table th {
   background-color: #f0f0f0;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .data-table tr:nth-child(even) {
   background-color: #f9f9f9;
 }
 
+.data-table td button {
+    margin-right: 10px;
+  }
+
 input[type="text"] {
   padding: 10px;
   margin-top: 10px;
-  width: 200px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  width: 300px;
+}
+
+input[type="checkbox"] {
+  margin-right: 5px;
 }
 
 .modal {
@@ -287,18 +305,16 @@ input[type="text"] {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
 }
 
 .modal-content {
   background-color: white;
   padding: 20px;
-  border-radius: 10px;
-  max-width: 500px;
-  width: 100%;
+  border-radius: 5px;
+  text-align: center;
 }
 </style>
