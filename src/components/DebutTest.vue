@@ -77,7 +77,7 @@ const goBack = () => {
 };
 
 const startEvaluation = () => {
-  router.push({ name: 'Evaluation', params: { id_questionnaire: props.questionnaire.id_questionnaire } });
+  showEvaluation.value = true;
 };
 </script>
 

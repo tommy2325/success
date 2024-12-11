@@ -81,10 +81,11 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { supabase } from '../supabase';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import Questionnaires from './Questionnaires.vue';
 
 const router = useRouter();
+const route = useRoute();
 
 const questions = ref([
   {
@@ -228,7 +229,7 @@ const replaceComponent = () => {
 };
 
 const goToQuestionnaireCreation = () => {
-  router.push('/creation-questionnaire');
+  router.push('/administrateur/questionnaires');
 };
 
 onMounted(() => {
@@ -279,7 +280,7 @@ const createQuestionnaire = async () => {
 };
 
 const cancel = () => {
-  emit('cancel');
+  router.push('/administrateur/questionnaires');
 };
 </script>
 
@@ -290,6 +291,8 @@ const cancel = () => {
   flex-direction: column;
   gap: 20px;
   padding: 20px;
+  position: relative;
+  z-index: 2000; /* Ensure it is above other components */
 }
 
 h2 {
@@ -380,6 +383,7 @@ button[type="button"]:hover {
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 2000; /* Ensure it is above other components */
 }
 
 .modal-content {

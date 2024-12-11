@@ -54,12 +54,9 @@
             </div>
           </div>
         </div>
-
-        <button class="back-btn">Retour</button>
       </div>
     </div>
     <Evaluation v-if="showDebutTest" :username="username" :userId="userId" :questionnaire="questionnaireData" />
-    <router-view></router-view>
   </div>
 </template>
 
@@ -67,6 +64,8 @@
 import { ref, onMounted } from 'vue';
 import { supabase } from '../supabase';
 import { defineProps, defineEmits } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/store/authStore';
 import Evaluation from './Evaluation.vue'; 
 
 const props = defineProps({
@@ -81,6 +80,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits();
+const router = useRouter();
+const authStore = useAuthStore();
 const passages = ref([]);
 const inputCode = ref('');
 const questionnaireData = ref(null);
@@ -167,7 +168,7 @@ onMounted(() => {
 <style scoped>
 .header {
   background-color: #c59edb;
-  width: 98%;
+  width: 100%;
   padding: 20px;
   display: flex;
   justify-content: space-between;
@@ -192,16 +193,17 @@ onMounted(() => {
 }
 
 .logout-button {
-  background-color: white;
-  color: #c59edb;
+  background-color: #e74c3c;
+  color: white;
+  padding: 8px 16px;
+  font-size: 14px;
   border: none;
-  padding: 10px;
   border-radius: 5px;
   cursor: pointer;
 }
 
 .logout-button:hover {
-  background-color: #b48ac6;
+  background-color: #c0392b;
 }
 
 .collaborateur-container {

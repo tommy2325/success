@@ -37,7 +37,7 @@ const logout = () => {
 <style scoped>
 .header {
   background-color: #c59edb;
-  width: 98%;
+  width: 100%;
   padding: 20px;
   position: fixed;
   top: 0;
@@ -45,6 +45,7 @@ const logout = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  z-index: 1000;
 }
 
 .header h1 {
