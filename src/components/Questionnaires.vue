@@ -28,7 +28,7 @@
         <button @click="hideEditForm">Annuler</button>
       </div>
 
-      <div>
+      <div v-if="!showEditForm">
         <input 
           v-model="searchQuery" 
           type="text" 
@@ -38,8 +38,8 @@
       </div>
 
       <!-- Tableau avec scroll -->
-      <div class="table-container">
-        <table v-if="!showEditForm" class="data-table">
+      <div v-if="!showEditForm" class="table-container">
+        <table class="data-table">
           <thead>
             <tr>
               <th>

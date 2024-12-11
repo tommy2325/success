@@ -54,8 +54,6 @@
             </div>
           </div>
         </div>
-
-        <button class="back-btn">Retour</button>
       </div>
     </div>
     <Evaluation v-if="showDebutTest" :username="username" :userId="userId" :questionnaire="questionnaireData" />
@@ -67,6 +65,8 @@
 import { ref, onMounted } from 'vue';
 import { supabase } from '../supabase';
 import { defineProps, defineEmits } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/store/authStore';
 import Evaluation from './Evaluation.vue'; 
 
 const props = defineProps({
@@ -81,6 +81,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits();
+const router = useRouter();
+const authStore = useAuthStore();
 const passages = ref([]);
 const inputCode = ref('');
 const questionnaireData = ref(null);
