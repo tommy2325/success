@@ -26,6 +26,7 @@ const routes = [
   },
   {
     path: '/administrateur',
+    name: 'Administrateur',
     component: Administrateur,
     children: [
       {
@@ -70,22 +71,6 @@ const routes = [
             props: true,
           },
         ],
-      },
-      {
-        path: 'edit-questions/:questionnaireId',
-        name: 'EditQuestions',
-        component: EditQuestions,
-        props: true,
-      },
-      {
-        path: 'creation-utilisateur',
-        name: 'CreationU',
-        component: CreationU,
-      },
-      {
-        path: 'creation-groupe',
-        name: 'CreationG',
-        component: CreationG,
       },
     ],
   },

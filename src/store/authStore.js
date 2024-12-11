@@ -44,7 +44,10 @@ export const useAuthStore = defineStore('auth', {
       // Démarrer le timer d'inactivité
       this.startInactivityTimer();
 
-      this.redirectBasedOnRole();
+      // Rediriger en fonction du rôle uniquement si l'utilisateur n'est pas déjà sur la bonne page
+      if (!this.isCurrentRouteCorrect()) {
+        this.redirectBasedOnRole();
+      }
     },
 
     logout() {
@@ -53,6 +56,7 @@ export const useAuthStore = defineStore('auth', {
       this.isAuthenticated = false;
       localStorage.removeItem('session');
       this.clearInactivityTimer();
+      router.push('/');
     },
 
     loadSession() {
@@ -75,7 +79,10 @@ export const useAuthStore = defineStore('auth', {
         // Démarrer le timer d'inactivité
         this.startInactivityTimer();
 
-        this.redirectBasedOnRole();
+        // Rediriger en fonction du rôle uniquement si l'utilisateur n'est pas déjà sur la bonne page
+        if (!this.isCurrentRouteCorrect()) {
+          this.redirectBasedOnRole();
+        }
       }
     },
 
@@ -102,10 +109,21 @@ export const useAuthStore = defineStore('auth', {
 
     redirectBasedOnRole() {
       if (this.role === 'administrateur') {
-        window.location.href = 'http://localhost:5173/administrateur';
+        router.push('/administrateur');
       } else if (this.role === 'collaborateur') {
-        window.location.href = 'http://localhost:5173/collaborateur';
+        router.push('/collaborateur');
       }
+    },
+
+    isCurrentRouteCorrect() {
+      const currentRoute = router.currentRoute.value;
+      if (this.role === 'administrateur' && currentRoute.path.startsWith('/administrateur')) {
+        return true;
+      }
+      if (this.role === 'collaborateur' && currentRoute.path.startsWith('/collaborateur')) {
+        return true;
+      }
+      return false;
     },
   },
 });
