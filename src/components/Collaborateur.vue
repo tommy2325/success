@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="box-principale">
     <div v-if="!showDebutTest">
       <div class="header">
         <h1>Accueil Collaborateur</h1>
@@ -167,6 +167,10 @@ onMounted(() => {
 </script>
 
 <style scoped>
+
+.box-principale{
+  box-shadow: #ccc;
+}
 .header {
   background: linear-gradient(135deg, #6e8efb, #a777e3);
   width: 98%;
@@ -194,8 +198,8 @@ onMounted(() => {
 }
 
 .logout-button {
-  background-color: white;
-  color: #c59edb;
+  background-color: #e74c3c;
+  color: white;
   border: none;
   padding: 10px;
   border-radius: 5px;
@@ -261,9 +265,9 @@ onMounted(() => {
 .code-btn {
   margin-left: 10px;
   padding: 5px 10px;
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   color: white;
-  border: none;
+  border-radius: 10px;
   cursor: pointer;
 }
 

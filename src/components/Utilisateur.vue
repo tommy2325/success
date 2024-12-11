@@ -289,6 +289,7 @@ button {
   border-radius: 5px;
   cursor: pointer;
   margin-top: 10px;
+  margin-right: 10px;
 }
 
 button:hover {

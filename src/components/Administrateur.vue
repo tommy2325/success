@@ -49,7 +49,7 @@ const logout = () => {
 }
 
 .header h1 {
-  margin: 0;
+  margin: auto;
   color: white;
   font-size: 2rem;
   text-align: center;
@@ -98,6 +98,7 @@ const logout = () => {
   text-transform: uppercase; /* Majuscules */  padding: 10px 20px;
   border-radius: 5px;
   font-size: 16px;
+  margin-top: 60px;
   text-align: center;
   cursor: pointer;
   display: inline-block;
