@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Administrateur from '../components/Administrateur.vue';
 import Collaborateur from '../components/Collaborateur.vue';
+import { useAuthStore } from '@/store/authStore';
 
 // Sous-composants pour les sections
 import Utilisateurs from '../components/Utilisateur.vue';
@@ -120,6 +121,21 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore();
+  if (authStore.isAuthenticated) {
+    if (to.path.startsWith('/administrateur') && authStore.role !== 'administrateur') {
+      next('/collaborateur');
+    } else if (to.path.startsWith('/collaborateur') && authStore.role !== 'collaborateur') {
+      next('/administrateur');
+    } else {
+      next();
+    }
+  } else {
+    next();
+  }
 });
 
 export default router;

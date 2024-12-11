@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div @mousemove="resetInactivityTimer" @keydown="resetInactivityTimer">
     <div v-if="authStore.isAuthenticated" class="top-bar">
     </div>
 
@@ -32,35 +32,29 @@
 <script setup>
 import { ref } from 'vue';
 import { useAuthStore } from './store/authStore';
-import { useRouter } from 'vue-router';
 
+const authStore = useAuthStore();
 const username = ref('');
 const password = ref('');
-const authStore = useAuthStore();
-const router = useRouter();
 
 const handleLogin = async () => {
   try {
     await authStore.login(username.value, password.value);
-
-    // Redirection après connexion
-    if (authStore.role === 'administrateur') {
-      router.push('/administrateur'); // Redirige vers la page Admin
-    } else if (authStore.role === 'collaborateur') {
-      router.push('/collaborateur'); // Redirige vers la page Collaborateur
-    } else {
-      alert("Votre rôle n'est pas reconnu.");
-    }
   } catch (error) {
-    alert('Erreur lors de la connexion : ' + error.message);
+    alert(error.message);
   }
 };
 
-const logout = () => {
-  authStore.logout();
-  router.push('/'); // Retour à la page de connexion
+const resetInactivityTimer = () => {
+  authStore.resetInactivityTimer();
 };
+
+authStore.loadSession();
 </script>
+
+<style scoped>
+/* Styles existants */
+</style>
 
 <style scoped>
 .login-container {
