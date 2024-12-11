@@ -10,10 +10,6 @@
         <button v-if="selectedQuestionnaires.length >= 2" @click="confirmDeleteSelectedQuestionnaires">Supprimer sélectionnés</button>
       </div>
 
-      <div v-if="showCreation">
-        <CreationQ @refresh="fetchQuestionnaires" @cancel="hideCreationForm" />
-      </div>
-
       <div v-if="showEditForm">
         <div>
           <label>Nom:</label>
@@ -43,7 +39,7 @@
 
       <!-- Tableau avec scroll -->
       <div class="table-container">
-        <table v-if="!showCreation && !showEditForm" class="data-table">
+        <table v-if="!showEditForm" class="data-table">
           <thead>
             <tr>
               <th>
@@ -90,20 +86,21 @@
         <button @click="closeConfirmModal">Annuler</button>
       </div>
     </div>
+
+    <!-- Affichage des enfants -->
+    <router-view></router-view>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { supabase } from '../supabase';
-import CreationQ from './CreationQ.vue';
-import EditQuestions from './EditQuestions.vue'; // Importer le composant
 
+const router = useRouter();
 const questionnaires = ref([]);
 const filteredQuestionnaires = ref([]);
-const showCreation = ref(false);
 const showEditForm = ref(false);
-const showEditQuestions = ref(false); // Variable pour contrôler l'affichage de EditQuestions.vue
 const selectAll = ref(false);
 const selectedQuestionnaires = ref([]);
 const searchQuery = ref('');
@@ -122,11 +119,7 @@ const fetchQuestionnaires = async () => {
 };
 
 const showCreationForm = () => {
-  showCreation.value = true;
-};
-
-const hideCreationForm = () => {
-  showCreation.value = false;
+  router.push({ name: 'CreationQ' }); // Redirige vers la page CreationQ
 };
 
 const hideEditForm = () => {

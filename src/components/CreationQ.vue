@@ -42,6 +42,40 @@
     <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
     <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
   </div>
+
+  <div class="modal" v-if="!questionnaireCreated">
+    <div class="modal-content">
+      <h2>Créer un nouveau questionnaire</h2>
+
+      <!-- Formulaire de création du questionnaire -->
+      <div v-if="!questionnaireCreated">
+        <form @submit.prevent="createQuestionnaire">
+          <label>Nom du QCM:
+            <input v-model="qcm.nom" type="text" required />
+          </label>
+          
+          <label>Temps (minutes):
+            <input v-model="qcm.temps" type="number" min="1" required />
+          </label>
+          
+          <label>Mot de passe:
+            <input v-model="qcm.mot_de_passe" type="password" />
+          </label>
+          
+          <div class="modal-actions">
+            <button type="submit">Créer</button>
+            <button type="button" @click="cancel">Annuler</button>
+          </div>
+        </form>
+      </div>
+
+      <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+      <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
+    </div>
+
+    <!-- Affichage des enfants -->
+    <router-view></router-view>
+  </div>
 </template>
 
 <script setup>
@@ -200,6 +234,53 @@ const goToQuestionnaireCreation = () => {
 onMounted(() => {
   fetchLatestQuestionnaireId();
 });
+
+const emit = defineEmits(['refresh', 'cancel', 'showCreationQ']);
+
+const qcm = ref({
+  nom: '',
+  temps: '',
+  mot_de_passe: ''
+});
+
+const questionnaireCreated = ref(false); // Variable pour vérifier si le questionnaire est créé
+
+// Créer un questionnaire
+const createQuestionnaire = async () => {
+  errorMessage.value = null;
+  successMessage.value = null;
+
+  // Vérifie que tous les champs sont remplis avant d'ajouter
+  if (qcm.value.nom && qcm.value.temps) {
+    try {
+      const { data, error } = await supabase.from('questionnaire').insert([{
+        nom: qcm.value.nom,
+        date_creation: new Date().toISOString().split('T')[0],  // Date du jour au format YYYY-MM-DD
+        code: qcm.value.mot_de_passe,
+        temps_de_passage: qcm.value.temps
+      }]);
+
+      if (error) {
+        errorMessage.value = `Erreur lors de la création du questionnaire: ${error.message}`;
+      } else {
+        successMessage.value = 'Questionnaire créé avec succès!';
+        qcm.value = { nom: '', temps: '', mot_de_passe: '' };
+        questionnaireCreated.value = true; // Le questionnaire a été créé, afficher les options suivantes
+        emit('refresh');
+        emit('showCreationQ', false); // Masque le modal et retourne à l'écran initial
+        router.push({ name: 'CreationQu', params: { id_questionnaire: data[0].id_questionnaire } }); // Redirige vers la page de création des questions
+      }
+    } catch (error) {
+      errorMessage.value = `Erreur lors de la création du questionnaire: ${error.message}`;
+    }
+  } else {
+    errorMessage.value = 'Veuillez remplir tous les champs.';
+  }
+};
+
+const cancel = () => {
+  emit('cancel');
+};
 </script>
 
 
@@ -287,5 +368,24 @@ button[type="button"]:hover {
   color: green;
   font-size: 0.9rem;
   margin-top: 10px;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  text-align: center;
 }
 </style>

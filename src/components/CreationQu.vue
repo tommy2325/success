@@ -47,10 +47,11 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { supabase } from '../supabase';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import Questionnaires from './Questionnaires.vue';
 
 const router = useRouter();
+const route = useRoute();
 
 const questions = ref([
   {
@@ -170,6 +171,18 @@ const validateAllQuestions = async () => {
   }
 };
 
+const replaceComponent = () => {
+  const app = document.querySelector('.creation-qu-container');
+  app.innerHTML = '';
+  const instance = app.__vue_app__;
+  instance._component = Questionnaires;
+  instance.mount(app);
+};
+
+const goToQuestionnaireCreation = () => {
+  router.push('/administrateur/questionnaires');
+};
+
 const fetchLatestQuestionnaireId = async () => {
   const { data, error } = await supabase
     .from('questionnaire')
@@ -183,18 +196,6 @@ const fetchLatestQuestionnaireId = async () => {
   } else {
     latestQuestionnaireId.value = data.id_questionnaire;
   }
-};
-
-const replaceComponent = () => {
-  const app = document.querySelector('.creation-qu-container');
-  app.innerHTML = '';
-  const instance = app.__vue_app__;
-  instance._component = Questionnaires;
-  instance.mount(app);
-};
-
-const goToQuestionnaireCreation = () => {
-  router.push('/creation-questionnaire');
 };
 
 onMounted(() => {

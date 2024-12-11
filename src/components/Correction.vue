@@ -116,7 +116,7 @@ const nextQuestion = () => {
 };
 
 const goBack = () => {
-  emit('goBack');
+  window.location.href = 'http://localhost:5173/administrateur/correction';
 };
 
 onMounted(() => {

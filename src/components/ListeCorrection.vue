@@ -29,14 +29,17 @@
       :idUtilisateur="selectedPassage.id_utilisateur"
       @goBack="selectedPassage = null"
     />
+    <router-view></router-view>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { supabase } from '../supabase';
 import Correction from './Correction.vue';
 
+const router = useRouter();
 const passages = ref([]);
 const selectedPassage = ref(null);
 const utilisateurs = ref({});
@@ -118,6 +121,13 @@ const showCorrection = async (passage) => {
         ...passage,
         id_questionnaire: data.id_questionnaire
       };
+      router.push({
+        name: 'Correction',
+        params: {
+          idQuestionnaire: data.id_questionnaire,
+          idUtilisateur: passage.id_utilisateur
+        }
+      });
     }
   } catch (error) {
     console.error("Erreur lors de la récupération de l'ID du questionnaire :", error);

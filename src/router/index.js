@@ -14,6 +14,8 @@ import CreationQ from '../components/CreationQ.vue';
 import CreationQu from '../components/CreationQu.vue';
 import CreationU from '../components/CreationU.vue';
 import CreationG from '../components/CreationG.vue';
+import DebutTest from '../components/DebutTest.vue';
+import Fin from '../components/Fin.vue';
 
 const routes = [
   {
@@ -34,6 +36,21 @@ const routes = [
         path: 'questionnaires',
         name: 'Questionnaires',
         component: Questionnaires,
+        children: [
+          {
+            path: 'creation-questionnaire',
+            name: 'CreationQ',
+            component: CreationQ,
+            children: [
+              {
+                path: 'creation-questions/:id_questionnaire',
+                name: 'CreationQu',
+                component: CreationQu,
+                props: true,
+              },
+            ],
+          },
+        ],
       },
       {
         path: 'dashboard',
@@ -44,22 +61,19 @@ const routes = [
         path: 'correction',
         name: 'ListeCorrection',
         component: ListeCorrection,
+        children: [
+          {
+            path: 'correction-question/:idQuestionnaire/:idUtilisateur',
+            name: 'Correction',
+            component: Correction,
+            props: true,
+          },
+        ],
       },
       {
         path: 'edit-questions/:questionnaireId',
         name: 'EditQuestions',
         component: EditQuestions,
-        props: true,
-      },
-      {
-        path: 'creation-questionnaire',
-        name: 'CreationQ',
-        component: CreationQ,
-      },
-      {
-        path: 'creation-questions/:id_questionnaire',
-        name: 'CreationQu',
-        component: CreationQu,
         props: true,
       },
       {
@@ -80,18 +94,26 @@ const routes = [
     component: Collaborateur,
     children: [
       {
-        path: 'evaluation/:id_questionnaire',
-        name: 'Evaluation',
-        component: Evaluation,
-        props: true,
+        path: 'debut',
+        name: 'DebutTest',
+        component: DebutTest,
+        children: [
+          {
+            path: 'evaluation/:id_questionnaire',
+            name: 'Evaluation',
+            component: Evaluation,
+            props: true,
+            children: [
+              {
+                path: 'fin',
+                name: 'Fin',
+                component: Fin,
+              },
+            ],
+          },
+        ],
       },
     ],
-  },
-  {
-    path: '/correction/:idQuestionnaire/:idUtilisateur',
-    name: 'Correction',
-    component: Correction,
-    props: true,
   },
 ];
 

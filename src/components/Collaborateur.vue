@@ -59,6 +59,7 @@
       </div>
     </div>
     <Evaluation v-if="showDebutTest" :username="username" :userId="userId" :questionnaire="questionnaireData" />
+    <router-view></router-view>
   </div>
 </template>
 
