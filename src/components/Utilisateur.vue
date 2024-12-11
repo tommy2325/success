@@ -245,7 +245,7 @@ onMounted(() => {
 
 <style scoped>
 header {
-  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  background-color: linear-gradient(135deg, #6e8efb, #a777e3);
   color: white;
   padding: 20px;
   text-align: center;
@@ -253,7 +253,7 @@ header {
 }
 
 button {
-  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  background-color: #c59edb;
   border: none;
   padding: 10px;
   color: white;

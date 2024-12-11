@@ -31,14 +31,17 @@
       :idUtilisateur="selectedPassage.id_utilisateur"
       @goBack="selectedPassage = null"
     />
+    <router-view></router-view>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { supabase } from '../supabase';
 import Correction from './Correction.vue';
 
+const router = useRouter();
 const passages = ref([]);
 const selectedPassage = ref(null);
 const utilisateurs = ref({});
@@ -105,8 +108,32 @@ const mapPassages = () => {
   }));
 };
 
-const showCorrection = (passage) => {
-  selectedPassage.value = passage;
+const showCorrection = async (passage) => {
+  try {
+    const { data, error } = await supabase
+      .from('questionnaire')
+      .select('id_questionnaire')
+      .eq('nom', passage.nom_questionnaire)
+      .single();
+
+    if (error) {
+      console.error("Erreur lors de la récupération de l'ID du questionnaire :", error);
+    } else {
+      selectedPassage.value = {
+        ...passage,
+        id_questionnaire: data.id_questionnaire
+      };
+      router.push({
+        name: 'Correction',
+        params: {
+          idQuestionnaire: data.id_questionnaire,
+          idUtilisateur: passage.id_utilisateur
+        }
+      });
+    }
+  } catch (error) {
+    console.error("Erreur lors de la récupération de l'ID du questionnaire :", error);
+  }
 };
 
 const formatDate = (date) => {
@@ -152,7 +179,6 @@ td:hover {
   background-color: #f9f9f9;
 }
 
-
 .table-container {
   max-height: 580px; 
   overflow-y: auto; 
@@ -161,7 +187,6 @@ td:hover {
   margin-top: 20px;
 }
 
-/* Optionnel : rendre l'en-tête sticky */
 thead th {
   position: sticky;
   top: 0;
