@@ -21,44 +21,37 @@
         </form>
       </div>
     </div>
-
+  </div>
     <!-- Contenu des routes -->
     <router-view v-if="authStore.isAuthenticated" />
-  </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
 import { useAuthStore } from './store/authStore';
-import { useRouter } from 'vue-router';
 
+const authStore = useAuthStore();
 const username = ref('');
 const password = ref('');
-const authStore = useAuthStore();
-const router = useRouter();
 
 const handleLogin = async () => {
   try {
     await authStore.login(username.value, password.value);
-
-    // Redirection après connexion
-    if (authStore.role === 'administrateur') {
-      router.push('/administrateur'); // Redirige vers la page Admin
-    } else if (authStore.role === 'collaborateur') {
-      router.push('/collaborateur'); // Redirige vers la page Collaborateur
-    } else {
-      alert("Votre rôle n'est pas reconnu.");
-    }
   } catch (error) {
-    alert('Erreur lors de la connexion : ' + error.message);
+    alert(error.message);
   }
 };
 
-const logout = () => {
-  authStore.logout();
-  router.push('/'); // Retour à la page de connexion
+const resetInactivityTimer = () => {
+  authStore.resetInactivityTimer();
 };
+
+authStore.loadSession();
 </script>
+
+<style scoped>
+/* Styles existants */
+</style>
 
 <style scoped>
 .login-container {
@@ -71,7 +64,7 @@ const logout = () => {
 }
 
 .header {
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   width: 100%;
   text-align: center;
   padding: 20px;
@@ -115,7 +108,7 @@ input {
 }
 
 .submit-btn {
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   border: none;
   padding: 10px 20px;
   color: white;

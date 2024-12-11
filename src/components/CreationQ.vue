@@ -1,4 +1,48 @@
 <template>
+  <div class="creation-qu-container">
+    <h2>Création de Questions</h2>
+
+    <div class="question-counter">
+      <span>Question {{ currentQuestionIndex + 1 }}/{{ questions.length }}</span>
+    </div>
+
+    <form @submit.prevent="createQuestion">
+      <label>Titre de la question :
+        <input v-model="currentQuestion.titre" type="text" required />
+      </label>
+
+      <div v-for="(reponse, index) in currentQuestion.reponses" :key="index" class="option-container">
+        <label>
+          Option {{ index + 1 }} :
+          <input v-model="reponse.titre" type="text" :placeholder="'Option ' + (index + 1)" required />
+        </label>
+        <label>
+          <input type="checkbox" v-model="reponse.bonne_reponse" :value="true" />
+          Bonne réponse
+        </label>
+        <button type="button" @click="deleteResponse(index)">Supprimer</button>
+      </div>
+
+      <button type="button" @click="addResponse">Ajouter une réponse</button>
+
+      <div class="modal-actions">
+        <button type="button" @click="goToQuestionnaireCreation">Retour</button>
+      </div>
+    </form>
+
+    <div class="navigation-buttons">
+      <button @click="navigateQuestion('prev')" :disabled="currentQuestionIndex === 0">← Précédente</button>
+      <button @click="navigateQuestion('next')" :disabled="currentQuestionIndex === questions.length - 1">Suivante →</button>
+      <button @click="addQuestion">Ajouter une question</button>
+      <button type="button" @click="deleteCurrentQuestion" :disabled="questions.length === 1">Supprimer cette question</button>
+    </div>
+
+    <button class="validate-all-button" @click="validateAllQuestions">Valider les questions</button>
+
+    <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+    <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
+  </div>
+
   <div class="modal" v-if="!questionnaireCreated">
     <div class="modal-content">
       <h2>Créer un nouveau questionnaire</h2>
@@ -25,120 +69,258 @@
         </form>
       </div>
 
-      <!-- Messages d'erreur et de succès -->
       <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
       <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
     </div>
-  </div>
 
-  <!-- Component for creating questions -->
-  <CreationQu v-if="questionnaireCreated" />
+    <!-- Affichage des enfants -->
+    <router-view></router-view>
+  </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';  // Importer le hook useRouter
-import { supabase } from '../supabase';  // Importer la connexion à Supabase
-import CreationQu from './CreationQu.vue';  // Importer le composant CreationQu
-
-const emit = defineEmits(['refresh', 'cancel', 'showCreationQ']);
+import { ref, onMounted } from 'vue';
+import { supabase } from '../supabase';
+import { useRouter, useRoute } from 'vue-router';
+import Questionnaires from './Questionnaires.vue';
 
 const router = useRouter();
+const route = useRoute();
 
-// Déclaration des variables liées au formulaire
+const questions = ref([
+  {
+    titre: '',
+    reponses: [
+      { titre: '', bonne_reponse: false },
+      { titre: '', bonne_reponse: false },
+      { titre: '', bonne_reponse: false },
+      { titre: '', bonne_reponse: false }
+    ]
+  }
+]);
+
+const currentQuestionIndex = ref(0);
+const currentQuestion = ref(questions.value[currentQuestionIndex.value]);
+
+const errorMessage = ref(null);
+const successMessage = ref(null);
+const latestQuestionnaireId = ref(null);
+const questionnaireCreated = ref(false); // Variable pour vérifier si le questionnaire est créé
+
 const qcm = ref({
   nom: '',
   temps: '',
   mot_de_passe: ''
 });
 
-const errorMessage = ref(null);
-const successMessage = ref(null);
-const questionnaireCreated = ref(false); // Variable pour vérifier si le questionnaire est créé
+const addResponse = () => {
+  if (currentQuestion.value.reponses.length < 6) {
+    currentQuestion.value.reponses.push({ titre: '', bonne_reponse: false });
+  }
+};
 
-// Créer un questionnaire
+const deleteResponse = (index) => {
+  if (currentQuestion.value.reponses.length > 2) {
+    currentQuestion.value.reponses.splice(index, 1);
+  } else {
+    errorMessage.value = 'Chaque question doit avoir au moins 2 réponses.';
+  }
+};
+
+const navigateQuestion = (direction) => {
+  if (direction === 'prev' && currentQuestionIndex.value > 0) {
+    currentQuestionIndex.value--;
+  } else if (direction === 'next' && currentQuestionIndex.value < questions.value.length - 1) {
+    currentQuestionIndex.value++;
+  }
+  currentQuestion.value = questions.value[currentQuestionIndex.value];
+};
+
+const addQuestion = () => {
+  questions.value.push({
+    titre: '',
+    reponses: [
+      { titre: '', bonne_reponse: false },
+      { titre: '', bonne_reponse: false },
+      { titre: '', bonne_reponse: false },
+      { titre: '', bonne_reponse: false }
+    ]
+  });
+  currentQuestionIndex.value = questions.value.length - 1;
+  currentQuestion.value = questions.value[currentQuestionIndex.value];
+};
+
+const deleteCurrentQuestion = () => {
+  if (questions.value.length > 1) {
+    questions.value.splice(currentQuestionIndex.value, 1);
+
+    if (currentQuestionIndex.value >= questions.value.length) {
+      currentQuestionIndex.value = questions.value.length - 1;
+    }
+
+    currentQuestion.value = questions.value[currentQuestionIndex.value];
+  } else {
+    errorMessage.value = 'Vous devez conserver au moins une question.';
+  }
+};
+
+const validateAllQuestions = async () => {
+  for (const question of questions.value) {
+    if (!question.titre || question.reponses.some((r) => !r.titre)) {
+      errorMessage.value = 'Toutes les questions doivent être correctement remplies.';
+      return;
+    }
+
+    const bonneReponseCount = question.reponses.filter((r) => r.bonne_reponse).length;
+    if (bonneReponseCount !== 1) {
+      errorMessage.value = 'Chaque question doit avoir une seule bonne réponse.';
+      return;
+    }
+  }
+
+  try {
+    for (const question of questions.value) {
+      const { data: questionData, error: questionError } = await supabase
+        .from('question')
+        .insert([{ titre: question.titre, points: 10 }])
+        .select();
+
+      if (questionError) throw new Error(questionError.message);
+
+      const questionId = questionData[0].id_question;
+
+      const responses = question.reponses.map((r) => ({
+        id_question: questionId,
+        titre: r.titre,
+        etre_bonne_reponse: r.bonne_reponse
+      }));
+
+      const { error: responseError } = await supabase.from('reponse').insert(responses);
+      if (responseError) throw new Error(responseError.message);
+
+      const { error: containError } = await supabase.from('contenir').insert([
+        { id_question: questionId, id_questionnaire: latestQuestionnaireId.value }
+      ]);
+      if (containError) throw new Error(containError.message);
+    }
+
+    successMessage.value = 'Toutes les questions ont été validées avec succès !';
+
+    replaceComponent();
+  } catch (error) {
+    errorMessage.value = `Erreur: ${error.message}`;
+  }
+};
+
+const fetchLatestQuestionnaireId = async () => {
+  const { data, error } = await supabase
+    .from('questionnaire')
+    .select('id_questionnaire')
+    .order('id_questionnaire', { ascending: false })
+    .limit(1)
+    .single();
+
+  if (error) {
+    console.error('Erreur lors de la récupération du dernier questionnaire :', error);
+  } else {
+    latestQuestionnaireId.value = data.id_questionnaire;
+  }
+};
+
+const replaceComponent = () => {
+  const app = document.querySelector('.creation-qu-container');
+  app.innerHTML = '';
+  const instance = app.__vue_app__;
+  instance._component = Questionnaires;
+  instance.mount(app);
+};
+
+const goToQuestionnaireCreation = () => {
+  router.push('/administrateur/questionnaires');
+};
+
+onMounted(() => {
+  fetchLatestQuestionnaireId();
+});
+
 const createQuestionnaire = async () => {
   errorMessage.value = null;
   successMessage.value = null;
 
   // Vérifie que tous les champs sont remplis avant d'ajouter
   if (qcm.value.nom && qcm.value.temps) {
-    const { data, error } = await supabase.from('questionnaire').insert([{
-      nom: qcm.value.nom,
-      date_creation: new Date().toISOString().split('T')[0],  // Date du jour au format YYYY-MM-DD
-      code: qcm.value.mot_de_passe,
-      temps_de_passage: qcm.value.temps
-    }]);
+    try {
+      const { data, error } = await supabase.from('questionnaire').insert([{
+        nom: qcm.value.nom,
+        date_creation: new Date().toISOString().split('T')[0],  // Date du jour au format YYYY-MM-DD
+        code: qcm.value.mot_de_passe,
+        temps_de_passage: qcm.value.temps
+      }]);
 
-
-    if (error) {
+      if (error) {
+        errorMessage.value = `Erreur lors de la création du questionnaire: ${error.message}`;
+      } else {
+        successMessage.value = 'Questionnaire créé avec succès!';
+        qcm.value = { nom: '', temps: '', mot_de_passe: '' };
+        questionnaireCreated.value = true; // Le questionnaire a été créé, afficher les options suivantes
+        emit('refresh');
+        emit('showCreationQ', false); // Masque le modal et retourne à l'écran initial
+        router.push({ name: 'CreationQu', params: { id_questionnaire: data[0].id_questionnaire } }); // Redirige vers la page de création des questions
+      }
+    } catch (error) {
       errorMessage.value = `Erreur lors de la création du questionnaire: ${error.message}`;
-    } else {
-      successMessage.value = 'Questionnaire créé avec succès!';
-      qcm.value = { nom: '', temps: '', mot_de_passe: '' };
-      questionnaireCreated.value = true; // Le questionnaire a été créé, afficher les options suivantes
-      emit('refresh');
-      emit('showCreationQ', false); // Masque le modal et retourne à l'écran initial
-      router.push({ name: 'Questionnaires' }); // Redirige vers la page des questionnaires
     }
   } else {
-    errorMessage.value = "Veuillez remplir tous les champs du formulaire.";
+    errorMessage.value = 'Veuillez remplir tous les champs.';
   }
 };
 
-// Annuler la création du questionnaire
 const cancel = () => {
-  emit('cancel');
-  emit('showCreationQ', false); // Masque le modal et retourne à l'écran initial
+  router.push('/administrateur/questionnaires');
 };
 </script>
 
 <style scoped>
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+.creation-qu-container {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background-color: white;
+  flex-direction: column;
+  gap: 20px;
   padding: 20px;
-  border-radius: 10px;
-  max-width: 500px;
-  width: 100%;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 2000; /* Ensure it is above other components */
 }
 
 h2 {
-  color: #c59edb;
-  margin-bottom: 20px;
   text-align: center;
+  color: #5f4b8b;
+}
+
+.question-counter {
+  text-align: right;
+  font-size: 1rem;
+  color: #777;
 }
 
 form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 15px;
 }
 
 label {
-  display: flex;
-  flex-direction: column;
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
-input, select {
+input {
   padding: 8px;
   margin-top: 5px;
   border-radius: 5px;
   border: 1px solid #ccc;
+}
+
+.option-container {
+  display: flex;
+  flex-direction: column;
 }
 
 .modal-actions {
@@ -148,7 +330,7 @@ input, select {
 }
 
 button {
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   border: none;
   padding: 10px 15px;
   color: white;
@@ -158,7 +340,20 @@ button {
 }
 
 button:hover {
-  background-color: #b48ac6;
+  background: #b48ac6;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+button[type="button"] {
+  background: #e74c3c;
+}
+
+button[type="button"]:hover {
+  background-color: #c0392b;
 }
 
 .error-message {
@@ -171,5 +366,25 @@ button:hover {
   color: green;
   font-size: 0.9rem;
   margin-top: 10px;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000; /* Ensure it is above other components */
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  text-align: center;
 }
 </style>

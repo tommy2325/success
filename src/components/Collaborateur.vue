@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="box-principale">
     <div v-if="!showDebutTest">
       <div class="header">
         <h1>Accueil Collaborateur</h1>
@@ -54,12 +54,10 @@
             </div>
           </div>
         </div>
-
-        <button class="back-btn">Retour</button>
       </div>
     </div>
-
     <Evaluation v-if="showDebutTest" :username="username" :userId="userId" :questionnaire="questionnaireData" />
+    <router-view></router-view>
   </div>
 </template>
 
@@ -67,6 +65,8 @@
 import { ref, onMounted } from 'vue';
 import { supabase } from '../supabase';
 import { defineProps, defineEmits } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/store/authStore';
 import Evaluation from './Evaluation.vue'; 
 
 const props = defineProps({
@@ -81,6 +81,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits();
+const router = useRouter();
+const authStore = useAuthStore();
 const passages = ref([]);
 const inputCode = ref('');
 const questionnaireData = ref(null);
@@ -165,13 +167,14 @@ onMounted(() => {
 </script>
 
 <style scoped>
+
+.box-principale{
+  box-shadow: #ccc;
+}
 .header {
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   width: 98%;
   padding: 20px;
-  position: fixed;
-  top: 0;
-  left: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -181,8 +184,6 @@ onMounted(() => {
   margin: 0;
   color: white;
   font-size: 2rem;
-  flex-grow: 1;
-  text-align: center;
 }
 
 .user-info {
@@ -199,23 +200,17 @@ onMounted(() => {
 .logout-button {
   background-color: #e74c3c;
   color: white;
-  padding: 8px 16px;
-  font-size: 14px;
   border: none;
+  padding: 10px;
   border-radius: 5px;
   cursor: pointer;
-  margin-left: 10px;
 }
 
 .logout-button:hover {
-  background-color: #c0392b;
+  background-color: #b48ac6;
 }
 
 .collaborateur-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-family: Arial, sans-serif;
   background-color: #f5f5f5;
   padding: 80px 20px 20px; 
 }
@@ -270,9 +265,9 @@ onMounted(() => {
 .code-btn {
   margin-left: 10px;
   padding: 5px 10px;
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   color: white;
-  border: none;
+  border-radius: 10px;
   cursor: pointer;
 }
 

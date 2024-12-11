@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- Barre supérieure avec le bouton de déconnexion -->
     <div class="header">
       <h1>Administrateur</h1>
       <div class="user-info">
@@ -9,7 +8,6 @@
       </div>
     </div>
 
-    <!-- Navigation pour les différentes sections -->
     <div class="main-actions">
       <router-link to="/administrateur/utilisateurs" class="nav-button">Utilisateurs</router-link>
       <router-link to="/administrateur/questionnaires" class="nav-button">Questionnaires</router-link>
@@ -17,7 +15,6 @@
       <router-link to="/administrateur/correction" class="nav-button">Correction</router-link>
     </div>
 
-    <!-- Affichage des sous-routes -->
     <div class="component-container">
       <router-view />
     </div>
@@ -39,7 +36,7 @@ const logout = () => {
 
 <style scoped>
 .header {
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   width: 98%;
   padding: 20px;
   position: fixed;
@@ -48,10 +45,11 @@ const logout = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  z-index: 1000;
 }
 
 .header h1 {
-  margin: 0;
+  margin: auto;
   color: white;
   font-size: 2rem;
   text-align: center;
@@ -86,27 +84,32 @@ const logout = () => {
   display: flex;
   justify-content: center;
   gap: 20px;
-  margin-top: 100px;
+  margin-top: 50px;
 }
 
 .nav-button {
   text-decoration: none;
-  background-color: #b48ac6;
-  color: white;
-  padding: 10px 20px;
+  font-family: 'Roboto', sans-serif; /* Police moderne */
+  font-size: 2.5rem; /* Taille impressionnante */
+  font-weight: bold; /* Texte épais */
+  color: #b5b2b2; /* Couleur blanche pour le texte */
+  text-shadow: 2px 2px 1px rgba(0, 0, 0, 1); /* Ombre subtile pour le texte */
+  letter-spacing: 2px; /* Espacement entre les lettres */
+  text-transform: uppercase; /* Majuscules */  padding: 10px 20px;
   border-radius: 5px;
   font-size: 16px;
+  margin-top: 60px;
   text-align: center;
   cursor: pointer;
   display: inline-block;
 }
 
 .nav-button:hover {
-  background-color: #9a75a3;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
 }
 
 .component-container {
-  margin-top: 150px;
+  margin-top: 20px;
   padding: 20px;
   text-align: center;
 }

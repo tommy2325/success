@@ -38,6 +38,7 @@
         <div class="footer">
             <span>Question : {{ currentQuestion + 1 }}/{{ questions.length }}</span>
         </div>
+        <router-view></router-view>
     </div>
 </template>
 

@@ -28,6 +28,7 @@
       :username="username" 
       :questionnaire="questionnaire"
     />
+    <router-view></router-view>
   </div>
 </template>
 
@@ -76,7 +77,7 @@ const goBack = () => {
 };
 
 const startEvaluation = () => {
-  showEvaluation.value = true;
+  router.push({ name: 'Evaluation', params: { id_questionnaire: props.questionnaire.id_questionnaire } });
 };
 </script>
 

@@ -1,11 +1,13 @@
 import { defineStore } from 'pinia';
 import { supabase } from '../supabase';
+import router from '../router'; // Import the router
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
     role: null,
     isAuthenticated: false,
+    inactivityTimer: null,
   }),
 
   actions: {
@@ -38,6 +40,11 @@ export const useAuthStore = defineStore('auth', {
           expiry: expiry,
         })
       );
+
+      // Démarrer le timer d'inactivité
+      this.startInactivityTimer();
+
+      this.redirectBasedOnRole();
     },
 
     logout() {
@@ -45,6 +52,7 @@ export const useAuthStore = defineStore('auth', {
       this.role = null;
       this.isAuthenticated = false;
       localStorage.removeItem('session');
+      this.clearInactivityTimer();
     },
 
     loadSession() {
@@ -63,6 +71,40 @@ export const useAuthStore = defineStore('auth', {
         this.user = sessionData.username;
         this.role = sessionData.role;
         this.isAuthenticated = true;
+
+        // Démarrer le timer d'inactivité
+        this.startInactivityTimer();
+
+        this.redirectBasedOnRole();
+      }
+    },
+
+    startInactivityTimer() {
+      this.clearInactivityTimer();
+      this.inactivityTimer = setTimeout(() => {
+        this.logout();
+        alert('Votre session a expiré en raison de l\'inactivité.');
+      }, 15 * 60 * 1000); // 15 minutes
+    },
+
+    clearInactivityTimer() {
+      if (this.inactivityTimer) {
+        clearTimeout(this.inactivityTimer);
+        this.inactivityTimer = null;
+      }
+    },
+
+    resetInactivityTimer() {
+      if (this.isAuthenticated) {
+        this.startInactivityTimer();
+      }
+    },
+
+    redirectBasedOnRole() {
+      if (this.role === 'administrateur') {
+        window.location.href = 'http://localhost:5173/administrateur';
+      } else if (this.role === 'collaborateur') {
+        window.location.href = 'http://localhost:5173/collaborateur';
       }
     },
   },

@@ -116,7 +116,7 @@ const nextQuestion = () => {
 };
 
 const goBack = () => {
-  emit('goBack');
+  window.location.href = 'http://localhost:5173/administrateur/correction';
 };
 
 onMounted(() => {
@@ -134,7 +134,8 @@ onMounted(() => {
 }
 
 .header {
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  border-radius: 10px;
   width: 100%;
   padding: 20px;
   display: flex;
@@ -148,7 +149,18 @@ onMounted(() => {
   font-size: 2rem;
 }
 
-.header .user-info button {
+.user-info {
+  display: flex;
+  align-items: center;
+}
+
+.user-info span {
+  margin-right: 20px;
+  color: white;
+  font-size: 1rem;
+}
+
+.user-info button {
   background-color: white;
   color: #c59edb;
   border: none;
@@ -157,12 +169,13 @@ onMounted(() => {
   cursor: pointer;
 }
 
-.header .user-info button:hover {
+.user-info button:hover {
   background-color: #b48ac6;
 }
 
 .questionnaire-content {
   margin-top: 20px;
+  margin-right: 0px;
   background-color: #f7f7f7;
   padding: 20px;
   border-radius: 8px;
@@ -185,14 +198,14 @@ onMounted(() => {
   font-size: 16px;
 }
 
-.answers .correct {
-  background-color: #a983db;
-  color: white;
+.answers div.correct {
+  background-color: #d4edda;
+  color: #155724;
 }
 
-.answers .incorrect {
-  background-color: #e74c3c;
-  color: white;
+.answers div.incorrect {
+  background-color: #f8d7da;
+  color: #721c24;
 }
 
 .navigation {
@@ -202,15 +215,15 @@ onMounted(() => {
 }
 
 .navigation .btn {
-  background-color: #b18cd8;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   color: white;
   border: none;
-  padding: 10px;
+  padding: 10px 20px;
   border-radius: 5px;
   cursor: pointer;
 }
 
 .navigation .btn:hover {
-  background-color: #a983db;
+  background-color: #a070c2;
 }
 </style>
