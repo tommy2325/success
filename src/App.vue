@@ -1,5 +1,5 @@
 <template>
-  <div @mousemove="resetInactivityTimer" @keydown="resetInactivityTimer">
+  <div>
     <div v-if="authStore.isAuthenticated" class="top-bar">
     </div>
 
@@ -26,7 +26,6 @@
 
     <!-- Contenu des routes -->
     <router-view v-if="authStore.isAuthenticated" />
-  </div>
 </template>
 
 <script setup>
