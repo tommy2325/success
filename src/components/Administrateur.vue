@@ -36,8 +36,8 @@ const logout = () => {
 
 <style scoped>
 .header {
-  background-color: #c59edb;
-  width: 100%;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  width: 98%;
   padding: 20px;
   position: fixed;
   top: 0;
@@ -84,14 +84,18 @@ const logout = () => {
   display: flex;
   justify-content: center;
   gap: 20px;
-  margin-top: 100px;
+  margin-top: 50px;
 }
 
 .nav-button {
   text-decoration: none;
-  background-color: #b48ac6;
-  color: white;
-  padding: 10px 20px;
+  font-family: 'Roboto', sans-serif; /* Police moderne */
+  font-size: 2.5rem; /* Taille impressionnante */
+  font-weight: bold; /* Texte épais */
+  color: #b5b2b2; /* Couleur blanche pour le texte */
+  text-shadow: 2px 2px 1px rgba(0, 0, 0, 1); /* Ombre subtile pour le texte */
+  letter-spacing: 2px; /* Espacement entre les lettres */
+  text-transform: uppercase; /* Majuscules */  padding: 10px 20px;
   border-radius: 5px;
   font-size: 16px;
   text-align: center;
@@ -100,11 +104,11 @@ const logout = () => {
 }
 
 .nav-button:hover {
-  background-color: #9a75a3;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
 }
 
 .component-container {
-  margin-top: 150px;
+  margin-top: 20px;
   padding: 20px;
   text-align: center;
 }

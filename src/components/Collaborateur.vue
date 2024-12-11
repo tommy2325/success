@@ -57,6 +57,7 @@
       </div>
     </div>
     <Evaluation v-if="showDebutTest" :username="username" :userId="userId" :questionnaire="questionnaireData" />
+    <router-view></router-view>
   </div>
 </template>
 
@@ -167,8 +168,8 @@ onMounted(() => {
 
 <style scoped>
 .header {
-  background-color: #c59edb;
-  width: 100%;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  width: 98%;
   padding: 20px;
   display: flex;
   justify-content: space-between;
@@ -193,17 +194,16 @@ onMounted(() => {
 }
 
 .logout-button {
-  background-color: #e74c3c;
-  color: white;
-  padding: 8px 16px;
-  font-size: 14px;
+  background-color: white;
+  color: #c59edb;
   border: none;
+  padding: 10px;
   border-radius: 5px;
   cursor: pointer;
 }
 
 .logout-button:hover {
-  background-color: #c0392b;
+  background-color: #b48ac6;
 }
 
 .collaborateur-container {

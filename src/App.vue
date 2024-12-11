@@ -73,7 +73,7 @@ const logout = () => {
 }
 
 .header {
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   width: 100%;
   text-align: center;
   padding: 20px;
@@ -117,7 +117,7 @@ input {
 }
 
 .submit-btn {
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   border: none;
   padding: 10px 20px;
   color: white;

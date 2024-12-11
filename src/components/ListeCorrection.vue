@@ -1,6 +1,8 @@
 <template>
+  <header>
+    <h1>Correction des Questionnaires</h1>
+  </header>
   <div>
-    <h2>Correction des Questionnaires</h2>
     <div class="table-container" v-if="!selectedPassage">
       <table>
         <thead>
@@ -146,6 +148,14 @@ onMounted(() => {
 
 <style scoped>
 /* Styles pour le tableau */
+header {
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  color: white;
+  padding: 20px;
+  text-align: center;
+  border-radius: 7px;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -170,7 +180,7 @@ td:hover {
 }
 
 .table-container {
-  max-height: 400px; 
+  max-height: 520px; 
   overflow-y: auto; 
   overflow-x: hidden; 
   border: 1px solid #ddd; 

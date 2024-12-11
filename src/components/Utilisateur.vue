@@ -11,7 +11,7 @@
         <button v-if="selectedUsers.length >= 2" @click="confirmDeleteSelectedUsers">Supprimer sélectionnés</button>
       </div>
 
-      <div>
+      <div >
         <input
           type="text"
           v-model="searchQuery"
@@ -273,14 +273,15 @@ onMounted(() => {
 
 <style scoped>
 header {
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   color: white;
   padding: 20px;
   text-align: center;
+  border-radius: 7px;
 }
 
 button {
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   border: none;
   padding: 10px;
   color: white;
@@ -294,8 +295,16 @@ button:hover {
   background-color: #b48ac6;
 }
 
-.button-group button {
-    margin-right: 10px; /* Ajoute une marge de 10px à droite de chaque bouton */
+input[type="text"] {
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  width: 300px;
+}
+
+.table-container {
+  max-height: 450px;
+  overflow-y: auto;
 }
 
 .data-table td button {

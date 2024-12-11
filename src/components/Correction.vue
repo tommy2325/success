@@ -134,7 +134,8 @@ onMounted(() => {
 }
 
 .header {
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  border-radius: 10px;
   width: 100%;
   padding: 20px;
   display: flex;
@@ -174,6 +175,7 @@ onMounted(() => {
 
 .questionnaire-content {
   margin-top: 20px;
+  margin-right: 0px;
   background-color: #f7f7f7;
   padding: 20px;
   border-radius: 8px;
@@ -213,7 +215,7 @@ onMounted(() => {
 }
 
 .navigation .btn {
-  background-color: #b18cd8;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   color: white;
   border: none;
   padding: 10px 20px;

@@ -238,6 +238,157 @@ onMounted(() => {
 
 const emit = defineEmits(['refresh', 'cancel', 'showCreationQ']);
 
+const questions = ref([
+  {
+    titre: '',
+    reponses: [
+      { titre: '', bonne_reponse: false },
+      { titre: '', bonne_reponse: false },
+      { titre: '', bonne_reponse: false },
+      { titre: '', bonne_reponse: false }
+    ]
+  }
+]);
+
+const currentQuestionIndex = ref(0);
+const currentQuestion = ref(questions.value[currentQuestionIndex.value]);
+
+const errorMessage = ref(null);
+const successMessage = ref(null);
+const latestQuestionnaireId = ref(null);
+
+const addResponse = () => {
+  if (currentQuestion.value.reponses.length < 6) {
+    currentQuestion.value.reponses.push({ titre: '', bonne_reponse: false });
+  }
+};
+
+const deleteResponse = (index) => {
+  if (currentQuestion.value.reponses.length > 2) {
+    currentQuestion.value.reponses.splice(index, 1);
+  } else {
+    errorMessage.value = 'Chaque question doit avoir au moins 2 réponses.';
+  }
+};
+
+const navigateQuestion = (direction) => {
+  if (direction === 'prev' && currentQuestionIndex.value > 0) {
+    currentQuestionIndex.value--;
+  } else if (direction === 'next' && currentQuestionIndex.value < questions.value.length - 1) {
+    currentQuestionIndex.value++;
+  }
+  currentQuestion.value = questions.value[currentQuestionIndex.value];
+};
+
+const addQuestion = () => {
+  questions.value.push({
+    titre: '',
+    reponses: [
+      { titre: '', bonne_reponse: false },
+      { titre: '', bonne_reponse: false },
+      { titre: '', bonne_reponse: false },
+      { titre: '', bonne_reponse: false }
+    ]
+  });
+  currentQuestionIndex.value = questions.value.length - 1;
+  currentQuestion.value = questions.value[currentQuestionIndex.value];
+};
+
+const deleteCurrentQuestion = () => {
+  if (questions.value.length > 1) {
+    questions.value.splice(currentQuestionIndex.value, 1);
+
+    if (currentQuestionIndex.value >= questions.value.length) {
+      currentQuestionIndex.value = questions.value.length - 1;
+    }
+
+    currentQuestion.value = questions.value[currentQuestionIndex.value];
+  } else {
+    errorMessage.value = 'Vous devez conserver au moins une question.';
+  }
+};
+
+const validateAllQuestions = async () => {
+  for (const question of questions.value) {
+    if (!question.titre || question.reponses.some((r) => !r.titre)) {
+      errorMessage.value = 'Toutes les questions doivent être correctement remplies.';
+      return;
+    }
+
+    const bonneReponseCount = question.reponses.filter((r) => r.bonne_reponse).length;
+    if (bonneReponseCount !== 1) {
+      errorMessage.value = 'Chaque question doit avoir une seule bonne réponse.';
+      return;
+    }
+  }
+
+  try {
+    for (const question of questions.value) {
+      const { data: questionData, error: questionError } = await supabase
+        .from('question')
+        .insert([{ titre: question.titre, points: 10 }])
+        .select();
+
+      if (questionError) throw new Error(questionError.message);
+
+      const questionId = questionData[0].id_question;
+
+      const responses = question.reponses.map((r) => ({
+        id_question: questionId,
+        titre: r.titre,
+        etre_bonne_reponse: r.bonne_reponse
+      }));
+
+      const { error: responseError } = await supabase.from('reponse').insert(responses);
+      if (responseError) throw new Error(responseError.message);
+
+      const { error: containError } = await supabase.from('contenir').insert([
+        { id_question: questionId, id_questionnaire: latestQuestionnaireId.value }
+      ]);
+      if (containError) throw new Error(containError.message);
+    }
+
+    successMessage.value = 'Toutes les questions ont été validées avec succès !';
+
+    replaceComponent();
+  } catch (error) {
+    errorMessage.value = `Erreur: ${error.message}`;
+  }
+};
+
+const fetchLatestQuestionnaireId = async () => {
+  const { data, error } = await supabase
+    .from('questionnaire')
+    .select('id_questionnaire')
+    .order('id_questionnaire', { ascending: false })
+    .limit(1)
+    .single();
+
+  if (error) {
+    console.error('Erreur lors de la récupération du dernier questionnaire :', error);
+  } else {
+    latestQuestionnaireId.value = data.id_questionnaire;
+  }
+};
+
+const replaceComponent = () => {
+  const app = document.querySelector('.creation-qu-container');
+  app.innerHTML = '';
+  const instance = app.__vue_app__;
+  instance._component = Questionnaires;
+  instance.mount(app);
+};
+
+const goToQuestionnaireCreation = () => {
+  router.push('/creation-questionnaire');
+};
+
+onMounted(() => {
+  fetchLatestQuestionnaireId();
+});
+
+const emit = defineEmits(['refresh', 'cancel', 'showCreationQ']);
+
 const qcm = ref({
   nom: '',
   temps: '',
@@ -335,7 +486,7 @@ input {
 }
 
 button {
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   border: none;
   padding: 10px 15px;
   color: white;
@@ -345,7 +496,20 @@ button {
 }
 
 button:hover {
-  background-color: #b48ac6;
+  background: #b48ac6;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+button[type="button"] {
+  background: #e74c3c;
+}
+
+button[type="button"]:hover {
+  background-color: #c0392b;
 }
 
 button:disabled {

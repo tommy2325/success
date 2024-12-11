@@ -169,7 +169,7 @@ form {
 }
 
 button {
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   border: none;
   padding: 8px 12px;
   color: white;

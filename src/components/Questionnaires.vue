@@ -222,10 +222,11 @@ onMounted(() => {
 
 <style scoped>
 header {
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   color: white;
   padding: 20px;
   text-align: center;
+  border-radius: 7px;
 }
 
 .button-group {
@@ -235,7 +236,7 @@ header {
 }
 
 button {
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   border: none;
   padding: 10px;
   color: white;
@@ -250,7 +251,7 @@ button:hover {
 }
 
 .table-container {
-  max-height: 400px; /* Hauteur maximale du tableau */
+  max-height: 420px; /* Hauteur maximale du tableau */
   overflow-y: auto; /* Permet le défilement vertical */
   margin-top: 20px;
 }

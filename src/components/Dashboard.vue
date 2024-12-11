@@ -1,6 +1,8 @@
 <template>
+  <header>
+    <h1>Dashboard</h1>
+  </header>
   <div class="dashboard-container">
-    <h2>Dashboard</h2>
     <div class="stat-cards">
       <div class="stat-card">
         <h3>Total Utilisateur</h3>
@@ -72,6 +74,14 @@ onMounted(() => {
 </script>
 
 <style scoped>
+
+header {
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  color: white;
+  padding: 20px;
+  text-align: center;
+  border-radius: 7px;
+}
 .dashboard-container {
   padding: 20px;
 }
