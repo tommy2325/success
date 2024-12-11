@@ -149,7 +149,7 @@ onMounted(() => {
 <style scoped>
 /* Styles pour le tableau */
 header {
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   color: white;
   padding: 20px;
   text-align: center;
@@ -180,7 +180,7 @@ td:hover {
 }
 
 .table-container {
-  max-height: 580px; 
+  max-height: 520px; 
   overflow-y: auto; 
   overflow-x: hidden; 
   border: 1px solid #ddd; 

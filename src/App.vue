@@ -1,8 +1,5 @@
 <template>
   <div>
-    <div v-if="authStore.isAuthenticated" class="top-bar">
-      <button @click="logout" class="logout-btn">Déconnexion</button>
-    </div>
 
     <!-- Formulaire de connexion -->
     <div v-if="!authStore.isAuthenticated" class="login-container">
@@ -74,7 +71,7 @@ const logout = () => {
 }
 
 .header {
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   width: 100%;
   text-align: center;
   padding: 20px;
@@ -118,7 +115,7 @@ input {
 }
 
 .submit-btn {
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   border: none;
   padding: 10px 20px;
   color: white;

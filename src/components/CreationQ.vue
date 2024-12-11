@@ -332,7 +332,7 @@ input {
 }
 
 button {
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   border: none;
   padding: 10px 15px;
   color: white;
@@ -342,7 +342,7 @@ button {
 }
 
 button:hover {
-  background-color: #b48ac6;
+  background: #b48ac6;
 }
 
 button:disabled {
@@ -351,7 +351,7 @@ button:disabled {
 }
 
 button[type="button"] {
-  background-color: #e74c3c;
+  background: #e74c3c;
 }
 
 button[type="button"]:hover {
