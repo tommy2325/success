@@ -1,7 +1,6 @@
 <template>
   <div>
-    <div v-if="authStore.isAuthenticated" class="top-bar">
-    </div>
+        </div>
 
     <!-- Formulaire de connexion -->
     <div v-if="!authStore.isAuthenticated" class="login-container">
@@ -26,7 +25,6 @@
 
     <!-- Contenu des routes -->
     <router-view v-if="authStore.isAuthenticated" />
-  </div>
 </template>
 
 <script setup>

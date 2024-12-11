@@ -244,6 +244,7 @@ button {
   border-radius: 5px;
   cursor: pointer;
   margin-top: 10px;
+  margin-right: 10px;
 }
 
 button:hover {
@@ -282,10 +283,12 @@ table th, table td {
     margin-right: 10px;
   }
 
-input[type="text"] {
+  input[type="text"] {
   padding: 10px;
   margin-top: 10px;
-  width: 300px;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
 
 input[type="checkbox"] {
