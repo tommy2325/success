@@ -26,6 +26,7 @@ const routes = [
   },
   {
     path: '/administrateur',
+    name: 'Administrateur',
     component: Administrateur,
     children: [
       {
@@ -71,22 +72,6 @@ const routes = [
           },
         ],
       },
-      {
-        path: 'edit-questions/:questionnaireId',
-        name: 'EditQuestions',
-        component: EditQuestions,
-        props: true,
-      },
-      {
-        path: 'creation-utilisateur',
-        name: 'CreationU',
-        component: CreationU,
-      },
-      {
-        path: 'creation-groupe',
-        name: 'CreationG',
-        component: CreationG,
-      },
     ],
   },
   {
@@ -121,21 +106,6 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
-});
-
-router.beforeEach((to, from, next) => {
-  const authStore = useAuthStore();
-  if (authStore.isAuthenticated) {
-    if (to.path.startsWith('/administrateur') && authStore.role !== 'administrateur') {
-      next('/collaborateur');
-    } else if (to.path.startsWith('/collaborateur') && authStore.role !== 'collaborateur') {
-      next('/administrateur');
-    } else {
-      next();
-    }
-  } else {
-    next();
-  }
 });
 
 export default router;
