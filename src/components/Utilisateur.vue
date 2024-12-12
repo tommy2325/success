@@ -8,6 +8,7 @@
       <div class="button-group centered">
         <button @click="showCreationForm">Créer un utilisateur</button>
         <button @click="showCreationGroupForm">Créer un groupe</button>
+        <button @click="showGroupList">Liste des groupes</button>
         <button v-if="selectedUsers.length >= 2" @click="confirmDeleteSelectedUsers">Supprimer sélectionnés</button>
       </div>
 
@@ -94,6 +95,32 @@
         <button @click="closeConfirmModal">Annuler</button>
       </div>
     </div>
+
+    <!-- Modale de liste des groupes -->
+    <div v-if="showGroupListModal" class="modal">
+      <div class="modal-content">
+        <h3>Liste des Groupes</h3>
+        <ul>
+          <li v-for="groupe in groupes" :key="groupe.id_groupe">
+            {{ groupe.nom }} ({{ groupe.role }})
+            <button @click="confirmDeleteGroup(groupe)">Supprimer</button>
+          </li>
+        </ul>
+        <button @click="closeGroupListModal">Fermer</button>
+      </div>
+    </div>
+
+    <!-- Confirmation de suppression de groupe -->
+    <div v-if="showConfirmGroupModal" class="modal">
+      <div class="modal-content">
+        <h3>Êtes-vous sûr de vouloir supprimer ce groupe :</h3>
+        <ul>
+          <li>{{ groupToDelete.nom }}</li>
+        </ul>
+        <button @click="deleteGroup">Supprimer</button>
+        <button @click="closeConfirmGroupModal">Annuler</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -110,8 +137,11 @@ const showCreation = ref(false);
 const showCreationGroup = ref(false);
 const showEditModal = ref(false);
 const showConfirmModal = ref(false);
+const showGroupListModal = ref(false);
+const showConfirmGroupModal = ref(false);
 const editUtilisateur = ref({});
 const usersToDelete = ref([]); // Liste des utilisateurs à supprimer
+const groupToDelete = ref({}); // Groupe à supprimer
 const selectAll = ref(false); // Case pour "Tout cocher"
 const selectedUsers = ref([]); // Liste des utilisateurs sélectionnés
 const searchQuery = ref(""); // Valeur pour la recherche
@@ -157,6 +187,16 @@ const showCreationGroupForm = () => {
 // Fonction pour cacher le formulaire de création de groupe
 const hideCreationGroupForm = () => {
   showCreationGroup.value = false;
+};
+
+// Fonction pour afficher la liste des groupes
+const showGroupList = () => {
+  showGroupListModal.value = true;
+};
+
+// Fonction pour fermer la modale de liste des groupes
+const closeGroupListModal = () => {
+  showGroupListModal.value = false;
 };
 
 // Fonction pour modifier un utilisateur
@@ -265,6 +305,32 @@ const filteredUtilisateurs = computed(() => {
     utilisateur.pseudo.toLowerCase().includes(searchQuery.value.toLowerCase())
   );
 });
+
+// Fonction pour confirmer la suppression d'un groupe
+const confirmDeleteGroup = (groupe) => {
+  groupToDelete.value = groupe;
+  showConfirmGroupModal.value = true;
+};
+
+// Fonction pour supprimer un groupe
+const deleteGroup = async () => {
+  const { error } = await supabase
+    .from("groupe")
+    .delete()
+    .eq("id_groupe", groupToDelete.value.id_groupe);
+
+  if (error) {
+    console.error("Erreur lors de la suppression du groupe:", error);
+  } else {
+    fetchGroupes();
+    closeConfirmGroupModal();
+  }
+};
+
+// Fonction pour fermer la modale de confirmation de groupe
+const closeConfirmGroupModal = () => {
+  showConfirmGroupModal.value = false;
+};
 
 onMounted(() => {
   fetchUtilisateurs();
