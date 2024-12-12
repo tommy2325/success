@@ -1,16 +1,16 @@
 <template>
     <div class="evaluation">
         <div class="header">
-            <h1>Évaluation </h1>
+            <h1>Évaluation</h1>
             <div class="user-info">
                 <span>{{ username }}</span>
+                <button class="logout-button" @click="logout">Déconnexion</button>
             </div>
         </div>
-        
-        <div class="questionnaire-content">
-            <h2>QUESTION n°{{ currentQuestion + 1 }}</h2>
-            <div class="timer">{{ formatTime() }}</div>
 
+        <div class="timer">{{ formatTime() }}</div>
+
+        <div class="questionnaire-content">
             <div class="question-section">
                 <div class="question">{{ questions[currentQuestion]?.titre }}</div>
                 <div class="answers">
@@ -26,11 +26,9 @@
             </div>
 
             <div class="navigation">
-                <button class="btn back" @click="confirmStopEvaluation">Arrêter le questionnaire</button>
-                <button class="btn next" @click="submitQuestion" v-if="!showReturnButton">
+                <button class="btn next" @click="submitQuestion">
                     {{ currentQuestion < questions.length - 1 ? 'Suivante' : 'Finir le questionnaire' }}
                 </button>
-                <button class="btn return" @click="goBack" v-if="showReturnButton">Revenir à l'accueil</button>
             </div>
         </div>
 
@@ -61,7 +59,6 @@ export default {
         const answers = ref([]);
         const selectedAnswers = ref([]);
         const questionnaire = ref(props.questionnaire);
-        const showReturnButton = ref(false);
 
         onMounted(async () => {
             try {
@@ -69,10 +66,25 @@ export default {
                 timer.value = questionnaire.value.temps_de_passage * 60;
 
                 // Récupérer les questions liées au questionnaire
-                const { data: questionsData } = await supabase
-                    .from("question")
-                    .select("*, contenir(id_questionnaire)")
-                    .eq("contenir.id_questionnaire", questionnaire.value.id_questionnaire);
+                const { data: questionIdsData, error: questionIdsError } = await supabase
+                    .from('contenir')
+                    .select('id_question')
+                    .eq('id_questionnaire', questionnaire.value.id_questionnaire);
+
+                if (questionIdsError) {
+                    throw new Error(questionIdsError.message);
+                }
+
+                const questionIds = questionIdsData.map(q => q.id_question);
+
+                const { data: questionsData, error: questionsError } = await supabase
+                    .from('question')
+                    .select('*')
+                    .in('id_question', questionIds);
+
+                if (questionsError) {
+                    throw new Error(questionsError.message);
+                }
 
                 questions.value = questionsData;
 
@@ -105,7 +117,6 @@ export default {
                     clearInterval(timerInterval.value);
                     // Logique pour terminer le questionnaire lorsque le temps est écoulé
                     saveResults();
-                    showReturnButton.value = true;
                 }
             }, 1000);
         };
@@ -120,13 +131,13 @@ export default {
             selectedAnswers.value[currentQuestion.value] = answer;
         };
 
-        const submitQuestion = () => {
+        const submitQuestion = async () => {
             if (currentQuestion.value < questions.value.length - 1) {
                 currentQuestion.value++;
             } else {
                 // Calculer et sauvegarder les résultats ici
-                saveResults();
-                showReturnButton.value = true;
+                await saveResults();
+                alert("Le questionnaire est bien terminé");
             }
         };
 
@@ -160,18 +171,9 @@ export default {
                 });
 
                 alert(`Votre score est de ${score}`);
+                router.push({ name: 'Collaborateur' });
             } catch (error) {
                 console.error("Erreur lors de la sauvegarde des résultats :", error);
-            }
-        };
-
-        const goBack = () => {
-            router.push({ name: 'Collaborateur' });
-        };
-
-        const confirmStopEvaluation = () => {
-            if (confirm("Êtes-vous sûr de vouloir arrêter le questionnaire ? Vos réponses ne seront pas sauvegardées.")) {
-                goBack();
             }
         };
 
@@ -190,9 +192,6 @@ export default {
             selectAnswer,
             submitQuestion,
             saveResults,
-            goBack,
-            confirmStopEvaluation,
-            showReturnButton,
             logout
         };
     },
@@ -239,18 +238,16 @@ export default {
     font-size: 1rem;
 }
 
-.user-info button {
+.logout-button {
     background-color: #e74c3c;
     color: white;
-    padding: 8px 16px;
-    font-size: 14px;
     border: none;
+    padding: 10px;
     border-radius: 5px;
     cursor: pointer;
-    margin-left: 10px;
 }
 
-.user-info button:hover {
+.logout-button:hover {
     background-color: #c0392b;
 }
 
@@ -295,7 +292,7 @@ export default {
 
 .navigation {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     margin-top: 20px;
 }
 

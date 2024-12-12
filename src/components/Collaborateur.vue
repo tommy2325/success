@@ -60,7 +60,8 @@
         </div>
       </div>
     </div>
-    <Evaluation v-if="showDebutTest" :username="username" :userId="userId" :questionnaire="questionnaireData" />
+    <DebutTest v-if="showDebutTest" :username="username" :questionnaire="questionnaireData" @startEvaluation="showEvaluation = true" />
+    <Evaluation v-if="showEvaluation" :username="username" :questionnaire="questionnaireData" :questions="questions" />
     <router-view></router-view>
   </div>
 </template>
@@ -68,30 +69,20 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { supabase } from '../supabase';
-import { defineProps, defineEmits } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/store/authStore';
-import Evaluation from './Evaluation.vue'; 
+import DebutTest from './DebutTest.vue';
+import Evaluation from './Evaluation.vue';
 
-const props = defineProps({
-  username: {
-    type: String,
-    required: true
-  },
-  userId: {
-    type: Number,
-    required: true
-  }
-});
-
-const emit = defineEmits();
-const router = useRouter();
 const authStore = useAuthStore();
+const router = useRouter();
 const passages = ref([]);
 const inputCode = ref('');
 const questionnaireData = ref(null);
 const showDebutTest = ref(false);
+const showEvaluation = ref(false);
 const totalPoints = ref(0);
+const questions = ref([]);
 
 const logout = () => {
   authStore.logout();
@@ -100,7 +91,6 @@ const logout = () => {
 
 const fetchPassages = async () => {
   try {
-    // Récupérer l'utilisateur connecté
     const { data: userData, error: userError } = await supabase
       .from('utilisateur')
       .select('id_utilisateur')
@@ -114,7 +104,6 @@ const fetchPassages = async () => {
 
     const userId = userData.id_utilisateur;
 
-    // Récupérer les passages de l'utilisateur
     const { data: passagesData, error: passagesError } = await supabase
       .from('passer')
       .select('id_passer, date, note, id_questionnaire')
@@ -126,7 +115,6 @@ const fetchPassages = async () => {
       return;
     }
 
-    // Récupérer les détails des questionnaires
     const questionnaireIds = passagesData.map(p => p.id_questionnaire);
     const { data: questionnairesData, error: questionnairesError } = await supabase
       .from('questionnaire')
@@ -138,7 +126,6 @@ const fetchPassages = async () => {
       return;
     }
 
-    // Mapper les passages avec les détails des questionnaires
     passages.value = passagesData.map(passage => {
       const questionnaire = questionnairesData.find(q => q.id_questionnaire === passage.id_questionnaire);
       return {
@@ -169,8 +156,9 @@ const checkCode = async () => {
     if (error || !data) {
       alert('Code incorrect');
     } else {
-      questionnaireData.value = data; // Sauvegarde les données du questionnaire
-      totalPoints.value = await fetchTotalPoints(data.id_questionnaire); // Récupère les points totaux
+      questionnaireData.value = data;
+      totalPoints.value = await fetchTotalPoints(data.id_questionnaire);
+      showDebutTest.value = true;
     }
   } catch (error) {
     console.error("Erreur lors de la vérification du code :", error);
@@ -192,8 +180,19 @@ const fetchTotalPoints = async (questionnaireId) => {
   }
 };
 
-const startEvaluation = () => {
-  showDebutTest.value = true;
+const startEvaluation = async () => {
+  showEvaluation.value = true;
+  const { data: questionsData, error: questionsError } = await supabase
+    .from('contenir')
+    .select('question.*')
+    .eq('id_questionnaire', questionnaireData.value.id_questionnaire)
+    .join('question', 'contenir.id_question', 'question.id_question');
+
+  if (questionsError) {
+    console.error('Erreur lors de la récupération des questions :', questionsError);
+  } else {
+    questions.value = questionsData;
+  }
 };
 
 onMounted(() => {
@@ -202,8 +201,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-
-.box-principale{
+.box-principale {
   box-shadow: #ccc;
 }
 .header {
@@ -247,7 +245,7 @@ onMounted(() => {
 
 .collaborateur-container {
   background-color: #f5f5f5;
-  padding: 80px 20px 20px; 
+  padding: 80px 20px 20px;
 }
 
 .main-content {

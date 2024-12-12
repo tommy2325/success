@@ -3,6 +3,18 @@
     <h1>Correction des Questionnaires</h1>
   </header>
   <div>
+    <!-- Barre de recherche -->
+    <div>
+      <input 
+        type="text"
+        v-model="searchQuery"
+        placeholder="Rechercher un utilisateur"
+        @input="filterPassages"
+        class="search-bar"
+      />
+    </div>
+
+    <!-- Tableau des passages -->
     <div class="table-container" v-if="!selectedPassage">
       <table>
         <thead>
@@ -14,7 +26,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="passage in passages" :key="passage.id_passer">
+          <tr v-for="passage in filteredPassages" :key="passage.id_passer">
             <td @click="showCorrection(passage)">{{ passage.nom_questionnaire }}</td>
             <td>{{ passage.utilisateur }}</td>
             <td>{{ passage.note }}</td>
@@ -24,6 +36,7 @@
       </table>
     </div>
 
+    <!-- Composant Correction -->
     <Correction
       v-if="selectedPassage"
       :username="username"
@@ -43,31 +56,30 @@ import Correction from './Correction.vue';
 
 const router = useRouter();
 const passages = ref([]);
+const filteredPassages = ref([]);
 const selectedPassage = ref(null);
 const utilisateurs = ref({});
 const questionnaires = ref({});
-const username = ref(''); // Remplacez par le nom d'utilisateur actuel
+const username = ref('');
+const searchQuery = ref('');
 
+// Fonction pour récupérer les passages
 const fetchPassages = async () => {
   const { data, error } = await supabase
     .from('passer')
-    .select(`
-      id_passer,
-      date,
-      note,
-      id_utilisateur,
-      id_questionnaire
-    `)
+    .select(`id_passer, date, note, id_utilisateur, id_questionnaire`)
     .order('date', { ascending: false });
 
   if (error) {
     console.error("Erreur lors de la récupération des passages :", error);
   } else {
     passages.value = data;
+    filteredPassages.value = data;
     fetchUtilisateurs();
   }
 };
 
+// Fonction pour récupérer les utilisateurs
 const fetchUtilisateurs = async () => {
   const { data, error } = await supabase
     .from('utilisateur')
@@ -80,10 +92,12 @@ const fetchUtilisateurs = async () => {
       acc[utilisateur.id_utilisateur] = utilisateur.pseudo;
       return acc;
     }, {});
+    console.log("Utilisateurs chargés:", utilisateurs.value);  // Vérification des utilisateurs
     fetchQuestionnaires();
   }
 };
 
+// Fonction pour récupérer les questionnaires
 const fetchQuestionnaires = async () => {
   const { data, error } = await supabase
     .from('questionnaire')
@@ -96,18 +110,26 @@ const fetchQuestionnaires = async () => {
       acc[questionnaire.id_questionnaire] = questionnaire.nom;
       return acc;
     }, {});
+    console.log("Questionnaires chargés:", questionnaires.value);  // Vérification des questionnaires
     mapPassages();
   }
 };
 
+// Fonction pour associer les passages avec les utilisateurs et les questionnaires
 const mapPassages = () => {
-  passages.value = passages.value.map(passage => ({
-    ...passage,
-    utilisateur: utilisateurs.value[passage.id_utilisateur],
-    nom_questionnaire: questionnaires.value[passage.id_questionnaire]
-  }));
+  passages.value = passages.value.map(passage => {
+    const utilisateur = utilisateurs.value[passage.id_utilisateur];
+    return {
+      ...passage,
+      utilisateur: utilisateur || 'Inconnu',  // Assurez-vous que chaque passage a un utilisateur valide
+      nom_questionnaire: questionnaires.value[passage.id_questionnaire] || 'Inconnu'  // Gestion d'un questionnaire non trouvé
+    };
+  });
+  filteredPassages.value = passages.value;
+  console.log("Passages après mappage:", passages.value);  // Vérification des passages après mappage
 };
 
+// Fonction pour afficher la correction du passage
 const showCorrection = async (passage) => {
   try {
     const { data, error } = await supabase
@@ -136,24 +158,42 @@ const showCorrection = async (passage) => {
   }
 };
 
+// Fonction pour formater la date
 const formatDate = (date) => {
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
   return new Date(date).toLocaleDateString('fr-FR', options);
 };
 
+// Fonction pour filtrer les passages en fonction du pseudo des utilisateurs
+const filterPassages = () => {
+  const query = searchQuery.value.toLowerCase();
+  filteredPassages.value = passages.value.filter(passage =>
+    passage.utilisateur.toLowerCase().includes(query)
+  );
+  console.log("Passages filtrés:", filteredPassages.value);  // Vérification des passages après filtrage
+};
+
+// Charger les données lors de l'initialisation
 onMounted(() => {
   fetchPassages();
 });
 </script>
 
 <style scoped>
-/* Styles pour le tableau */
 header {
   background: linear-gradient(135deg, #6e8efb, #a777e3);
   color: white;
   padding: 20px;
   text-align: center;
   border-radius: 7px;
+}
+
+.search-bar {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
 
 table {
@@ -171,18 +211,9 @@ th {
   background-color: #f0f0f0;
 }
 
-td {
-  cursor: pointer;
-}
-
-td:hover {
-  background-color: #f9f9f9;
-}
-
 .table-container {
   max-height: 520px; 
   overflow-y: auto; 
-  overflow-x: hidden; 
   border: 1px solid #ddd; 
   margin-top: 20px;
 }
@@ -191,6 +222,5 @@ thead th {
   position: sticky;
   top: 0;
   background-color: #fff;
-  z-index: 2;
 }
 </style>

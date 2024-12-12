@@ -9,8 +9,9 @@
     </div>
     
     <div class="questionnaire-content">
-      <h2>QUESTION n°{{ currentQuestion + 1 }}</h2>
+      <h2>QUESTION n°{{ currentQuestion + 1 }} / {{ questions.length }}</h2>
 
+      <!-- Affichage de la question et des réponses -->
       <div class="question-section">
         <div class="question">{{ questions[currentQuestion]?.titre }}</div>
         <div class="answers">
@@ -27,6 +28,7 @@
         </div>
       </div>
 
+      <!-- Navigation entre les questions -->
       <div class="navigation">
         <button class="btn back" @click="prevQuestion" :disabled="currentQuestion === 0">← Précédente</button>
         <button class="btn next" @click="nextQuestion" :disabled="currentQuestion === questions.length - 1">Suivante →</button>
@@ -60,6 +62,7 @@ const questions = ref([]);
 const answers = ref([]);
 const selectedAnswers = ref([]);
 
+// Récupérer les données de la correction
 const fetchCorrection = async () => {
   try {
     // Récupérer les questions liées au questionnaire
@@ -75,7 +78,7 @@ const fetchCorrection = async () => {
     if (questionsError) throw questionsError;
     questions.value = questionsData;
 
-    // Récupérer les réponses pour chaque question
+    // Récupérer les réponses possibles pour chaque question
     for (const question of questionsData) {
       const { data: answersData, error: answersError } = await supabase
         .from('reponse')
@@ -103,22 +106,26 @@ const fetchCorrection = async () => {
   }
 };
 
+// Fonction pour afficher la question précédente
 const prevQuestion = () => {
   if (currentQuestion.value > 0) {
     currentQuestion.value--;
   }
 };
 
+// Fonction pour afficher la question suivante
 const nextQuestion = () => {
   if (currentQuestion.value < questions.value.length - 1) {
     currentQuestion.value++;
   }
 };
 
+// Fonction pour revenir à la page précédente
 const goBack = () => {
-  window.location.href = 'http://localhost:5173/administrateur/correction';
+  emit('goBack');  // Emmet un événement pour revenir à la page précédente
 };
 
+// Récupérer les données de correction lors du montage
 onMounted(() => {
   fetchCorrection();
 });

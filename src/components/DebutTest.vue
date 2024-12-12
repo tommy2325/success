@@ -1,17 +1,14 @@
 <template>
   <div>
-    <!-- Header commun -->
     <div class="header">
-      <h1 v-if="!showEvaluation">Début du Test</h1>
-      <h1 v-else>Évaluation</h1>
+      <h1>Début du Test</h1>
       <div class="user-info">
         <span>{{ username }}</span>
-        <button @click="goBack" v-if="!showEvaluation">Retour</button>
+        <button @click="goBack" class="back-button">Retour</button>
       </div>
     </div>
 
-    <!-- Contenu principal -->
-    <div v-if="!showEvaluation" class="test-info">
+    <div class="test-info">
       <h3>Nom du questionnaire :</h3>
       <p>{{ questionnaire.nom }}</p>
       <h3>Temps du questionnaire :</h3>
@@ -21,23 +18,13 @@
 
       <button class="start-btn" @click="startEvaluation">Démarrer</button>
     </div>
-
-    <!-- Composant Evaluation -->
-    <Evaluation 
-      v-if="showEvaluation" 
-      :username="username" 
-      :questionnaire="questionnaire"
-    />
-    <router-view></router-view>
   </div>
 </template>
 
 <script setup>
-import { defineProps, onMounted, ref } from 'vue';
+import { defineProps, defineEmits, onMounted, ref } from 'vue';
 import { supabase } from '../supabase';
-import Evaluation from './Evaluation.vue'; // Import du composant Evaluation
 
-// Propriétés
 const props = defineProps({
   username: {
     type: String,
@@ -49,47 +36,41 @@ const props = defineProps({
   }
 });
 
-// Variables réactives
-const totalPoints = ref(0);
-const showEvaluation = ref(false);
+const emit = defineEmits(['startEvaluation']);
 
-// Chargement des points total à l'ouverture
+const totalPoints = ref(0);
+
 onMounted(async () => {
   try {
-    const { data, error } = await supabase
+    const { data: pointsData, error: pointsError } = await supabase
       .from('question')
       .select('points')
       .eq('id_questionnaire', props.questionnaire.id_questionnaire);
 
-    if (error) {
-      console.error('Erreur lors de la récupération des questions :', error);
+    if (pointsError) {
+      console.error('Erreur lors de la récupération des questions :', pointsError);
     } else {
-      totalPoints.value = data.reduce((acc, question) => acc + question.points, 0);
+      totalPoints.value = pointsData.reduce((acc, question) => acc + question.points, 0);
     }
   } catch (error) {
-    console.error("Erreur lors du calcul des points :", error);
+    console.error("Erreur lors du chargement des données :", error);
   }
 });
 
-// Retour à la page précédente
 const goBack = () => {
   history.back();
 };
 
 const startEvaluation = () => {
-  router.push({ name: 'Evaluation', params: { id_questionnaire: props.questionnaire.id_questionnaire } });
+  emit('startEvaluation');
 };
 </script>
 
 <style scoped>
-/* Header commun */
 .header {
-  background-color: #c59edb;
-  width: 100%;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  width: 98%;
   padding: 20px;
-  position: fixed;
-  top: 0;
-  left: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -103,21 +84,30 @@ const startEvaluation = () => {
   text-align: center;
 }
 
-/* Bouton Retour */
-.header .user-info button {
-  background-color: white;
-  color: #c59edb;
+.user-info {
+  display: flex;
+  align-items: center;
+}
+
+.user-info span {
+  margin-right: 20px;
+  color: white;
+  font-size: 1rem;
+}
+
+.back-button {
+  background-color: #e74c3c;
+  color: white;
   border: none;
   padding: 10px;
   border-radius: 5px;
   cursor: pointer;
 }
 
-.header .user-info button:hover {
-  background-color: #e7d7f3;
+.back-button:hover {
+  background-color: #c0392b;
 }
 
-/* Informations du test */
 .test-info {
   margin-top: 80px;
   text-align: center;
@@ -129,7 +119,7 @@ const startEvaluation = () => {
 
 .start-btn {
   padding: 10px 20px;
-  background-color: #c59edb;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
   color: white;
   border: none;
   border-radius: 5px;
@@ -140,4 +130,4 @@ const startEvaluation = () => {
 .start-btn:hover {
   background-color: #a87ac4;
 }
-</style>
+</style>  
