@@ -4,7 +4,6 @@
             <h1>Évaluation </h1>
             <div class="user-info">
                 <span>{{ username }}</span>
-                <button @click="logout">Déconnexion</button>
             </div>
         </div>
         
@@ -27,7 +26,7 @@
             </div>
 
             <div class="navigation">
-                <button class="btn back" @click="stopEvaluation">Arrêter le questionnaire</button>
+                <button class="btn back" @click="confirmStopEvaluation">Arrêter le questionnaire</button>
                 <button class="btn next" @click="submitQuestion" v-if="!showReturnButton">
                     {{ currentQuestion < questions.length - 1 ? 'Suivante' : 'Finir le questionnaire' }}
                 </button>
@@ -170,7 +169,7 @@ export default {
             router.push({ name: 'Collaborateur' });
         };
 
-        const stopEvaluation = () => {
+        const confirmStopEvaluation = () => {
             if (confirm("Êtes-vous sûr de vouloir arrêter le questionnaire ? Vos réponses ne seront pas sauvegardées.")) {
                 goBack();
             }
@@ -192,7 +191,7 @@ export default {
             submitQuestion,
             saveResults,
             goBack,
-            stopEvaluation,
+            confirmStopEvaluation,
             showReturnButton,
             logout
         };
@@ -210,7 +209,7 @@ export default {
 }
 
 .header {
-    background-color: #c59edb;
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
     width: 98%;
     padding: 20px;
     position: fixed;
@@ -242,13 +241,13 @@ export default {
 
 .user-info button {
     background-color: #e74c3c;
-  color: white;
-  padding: 8px 16px;
-  font-size: 14px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-left: 10px;
+    color: white;
+    padding: 8px 16px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 10px;
 }
 
 .user-info button:hover {
@@ -263,8 +262,8 @@ export default {
 }
 
 .questionnaire-content {
-    margin-top: 80px; /* Augmentez cette valeur pour éloigner le conteneur */
-    background-color: #f7f7f7;
+    margin-top: 80px;
+    background-color: #f5f5f5;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -301,7 +300,7 @@ export default {
 }
 
 .navigation .btn {
-    background-color: #b18cd8;
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
     color: white;
     border: none;
     padding: 10px 20px;

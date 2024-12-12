@@ -52,6 +52,12 @@ const routes = [
               },
             ],
           },
+          {
+            path: 'edit-questions/:id_questionnaire',  // Changed from :id to :id_questionnaire
+            name: 'EditQuestions',
+            component: EditQuestions,
+            props: true
+          }
         ],
       },
       {

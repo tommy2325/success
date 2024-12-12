@@ -5,13 +5,13 @@
     </header>
 
     <section>
-      <div class="button-group">
+      <div class="button-group centered">
         <button @click="showCreationForm">Créer un utilisateur</button>
         <button @click="showCreationGroupForm">Créer un groupe</button>
         <button v-if="selectedUsers.length >= 2" @click="confirmDeleteSelectedUsers">Supprimer sélectionnés</button>
       </div>
 
-      <div >
+      <div>
         <input
           type="text"
           v-model="searchQuery"
@@ -28,37 +28,39 @@
         <CreationG @refresh="fetchGroupes" @cancel="hideCreationGroupForm" />
       </div>
 
-      <table v-else class="data-table">
-        <thead>
-          <tr>
-            <th>
-              <input type="checkbox" v-model="selectAll" @change="toggleSelectAll" />
-            </th>
-            <th>Nom d'utilisateur</th>
-            <th>Groupe</th>
-            <th>Rôle</th>
-            <th>Options</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="utilisateur in filteredUtilisateurs" :key="utilisateur.id_utilisateur">
-            <td>
-              <input
-                type="checkbox"
-                :value="utilisateur.id_utilisateur"
-                v-model="selectedUsers"
-              />
-            </td>
-            <td>{{ utilisateur.pseudo }}</td>
-            <td>{{ utilisateur.appartenir[0]?.groupe.nom || 'N/A' }}</td>
-            <td>{{ utilisateur.appartenir[0]?.groupe.role || 'N/A' }}</td>
-            <td>
-              <button @click="editUser(utilisateur)">Modifier</button>
-              <button @click="confirmDeleteUser(utilisateur)">Supprimer</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div v-else class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>
+                <input type="checkbox" v-model="selectAll" @change="toggleSelectAll" />
+              </th>
+              <th>Nom d'utilisateur</th>
+              <th>Groupe</th>
+              <th>Rôle</th>
+              <th>Options</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="utilisateur in filteredUtilisateurs" :key="utilisateur.id_utilisateur">
+              <td>
+                <input
+                  type="checkbox"
+                  :value="utilisateur.id_utilisateur"
+                  v-model="selectedUsers"
+                />
+              </td>
+              <td>{{ utilisateur.pseudo }}</td>
+              <td>{{ utilisateur.appartenir[0]?.groupe.nom || 'N/A' }}</td>
+              <td>{{ utilisateur.appartenir[0]?.groupe.role || 'N/A' }}</td>
+              <td>
+                <button @click="editUser(utilisateur)">Modifier</button>
+                <button @click="confirmDeleteUser(utilisateur)">Supprimer</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </section>
 
     <!-- Modale de modification utilisateur -->
@@ -278,6 +280,16 @@ header {
   padding: 20px;
   text-align: center;
   border-radius: 7px;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.button-group.centered {
+  justify-content: center;
 }
 
 button {

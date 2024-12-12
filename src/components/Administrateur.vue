@@ -9,10 +9,34 @@
     </div>
 
     <div class="main-actions">
-      <router-link to="/administrateur/utilisateurs" class="nav-button">Utilisateurs</router-link>
-      <router-link to="/administrateur/questionnaires" class="nav-button">Questionnaires</router-link>
-      <router-link to="/administrateur/dashboard" class="nav-button">Dashboard</router-link>
-      <router-link to="/administrateur/correction" class="nav-button">Correction</router-link>
+      <router-link 
+        to="/administrateur/utilisateurs" 
+        class="nav-button" 
+        :class="{ active: isActive('/administrateur/utilisateurs') }"
+      >
+        Utilisateurs
+      </router-link>
+      <router-link 
+        to="/administrateur/questionnaires" 
+        class="nav-button" 
+        :class="{ active: isActive('/administrateur/questionnaires') }"
+      >
+        Questionnaires
+      </router-link>
+      <router-link 
+        to="/administrateur/dashboard" 
+        class="nav-button" 
+        :class="{ active: isActive('/administrateur/dashboard') }"
+      >
+        Dashboard
+      </router-link>
+      <router-link 
+        to="/administrateur/correction" 
+        class="nav-button" 
+        :class="{ active: isActive('/administrateur/correction') }"
+      >
+        Correction
+      </router-link>
     </div>
 
     <div class="component-container">
@@ -23,14 +47,19 @@
 
 <script setup>
 import { useAuthStore } from '@/store/authStore';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
 const authStore = useAuthStore();
 const router = useRouter();
+const route = useRoute();
 
 const logout = () => {
   authStore.logout();
   router.push('/');
+};
+
+const isActive = (path) => {
+  return route.path.startsWith(path);
 };
 </script>
 
@@ -95,7 +124,8 @@ const logout = () => {
   color: #b5b2b2; /* Couleur blanche pour le texte */
   text-shadow: 2px 2px 1px rgba(0, 0, 0, 1); /* Ombre subtile pour le texte */
   letter-spacing: 2px; /* Espacement entre les lettres */
-  text-transform: uppercase; /* Majuscules */  padding: 10px 20px;
+  text-transform: uppercase; /* Majuscules */  
+  padding: 10px 20px;
   border-radius: 5px;
   font-size: 16px;
   margin-top: 60px;
@@ -106,6 +136,11 @@ const logout = () => {
 
 .nav-button:hover {
   background: linear-gradient(135deg, #6e8efb, #a777e3);
+}
+
+.nav-button.active {
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  color: white;
 }
 
 .component-container {

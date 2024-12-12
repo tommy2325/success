@@ -18,7 +18,7 @@
       </div>
       <div class="stat-card">
         <h3>Moyenne des notes</h3>
-        <p>{{ averageNote }}</p>
+        <p>{{ averageNote }}/20</p>
       </div>
     </div>
     <div class="chart-container">
@@ -94,7 +94,7 @@ const fetchStats = async () => {
       console.error('Erreur lors de la récupération des notes:', notesError);
     } else {
       const totalNotes = notesData.reduce((acc, item) => acc + item.note, 0);
-      averageNote.value = (totalNotes / notesData.length).toFixed(2);
+      averageNote.value = ((totalNotes / notesData.length) * 20 / 20).toFixed(2);
     }
 
     // Récupérer les données pour le graphique

@@ -4,7 +4,7 @@
       <div class="header">
         <h1>Accueil Collaborateur</h1>
         <div class="user-info">
-          <span>{{ username }}</span>
+          <span>{{ authStore.user }}</span>
           <button @click="logout" class="logout-button">Déconnexion</button>
         </div>
       </div>
@@ -39,6 +39,8 @@
                 <thead>
                   <tr>
                     <th>Nom</th>
+                    <th>Date de création</th>
+                    <th>Temps de passage</th>
                     <th>Date</th>
                     <th>Note</th>
                   </tr>
@@ -46,6 +48,8 @@
                 <tbody>
                   <tr v-for="passage in passages" :key="passage.id_passer">
                     <td>{{ passage.nom_questionnaire }}</td>
+                    <td>{{ formatDate(passage.date_creation) }}</td>
+                    <td>{{ passage.temps_de_passage }} minutes</td>
                     <td>{{ formatDate(passage.date) }}</td>
                     <td>{{ passage.note }}</td>
                   </tr>
@@ -95,26 +99,57 @@ const logout = () => {
 };
 
 const fetchPassages = async () => {
-  const { data, error } = await supabase
-    .from('passer')
-    .select(`
-      id_passer,
-      date,
-      note,
-      questionnaire (nom)
-    `)
-    .eq('id_utilisateur', props.userId)
-    .order('date', { ascending: false });
+  try {
+    // Récupérer l'utilisateur connecté
+    const { data: userData, error: userError } = await supabase
+      .from('utilisateur')
+      .select('id_utilisateur')
+      .eq('pseudo', authStore.user)
+      .single();
 
-  if (error) {
-    console.error("Erreur lors de la récupération des passages :", error);
-  } else {
-    passages.value = data.map(passage => ({
-      id_passer: passage.id_passer,
-      date: passage.date,
-      note: passage.note,
-      nom_questionnaire: passage.questionnaire.nom
-    }));
+    if (userError) {
+      console.error('Erreur lors de la récupération de l\'utilisateur:', userError);
+      return;
+    }
+
+    const userId = userData.id_utilisateur;
+
+    // Récupérer les passages de l'utilisateur
+    const { data: passagesData, error: passagesError } = await supabase
+      .from('passer')
+      .select('id_passer, date, note, id_questionnaire')
+      .eq('id_utilisateur', userId)
+      .order('date', { ascending: false });
+
+    if (passagesError) {
+      console.error('Erreur lors de la récupération des passages:', passagesError);
+      return;
+    }
+
+    // Récupérer les détails des questionnaires
+    const questionnaireIds = passagesData.map(p => p.id_questionnaire);
+    const { data: questionnairesData, error: questionnairesError } = await supabase
+      .from('questionnaire')
+      .select('id_questionnaire, nom, date_creation, temps_de_passage')
+      .in('id_questionnaire', questionnaireIds);
+
+    if (questionnairesError) {
+      console.error('Erreur lors de la récupération des questionnaires:', questionnairesError);
+      return;
+    }
+
+    // Mapper les passages avec les détails des questionnaires
+    passages.value = passagesData.map(passage => {
+      const questionnaire = questionnairesData.find(q => q.id_questionnaire === passage.id_questionnaire);
+      return {
+        ...passage,
+        nom_questionnaire: questionnaire.nom,
+        date_creation: questionnaire.date_creation,
+        temps_de_passage: questionnaire.temps_de_passage
+      };
+    });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des passages:', error);
   }
 };
 
@@ -271,6 +306,15 @@ onMounted(() => {
   cursor: pointer;
 }
 
+.start-btn {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
 .questionnaire-list h3 {
   font-size: 1.2rem;
   margin-bottom: 10px;
@@ -293,14 +337,5 @@ th, td {
   color: white;
   border: none;
   cursor: pointer;
-}
-
-.start-btn {
-  padding: 10px 20px;
-  background-color: #c59edb;
-  color: white;
-  border: none;
-  cursor: pointer;
-  margin-top: 20px;
 }
 </style>

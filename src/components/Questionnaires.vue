@@ -5,7 +5,7 @@
     </header>
 
     <section>
-      <div class="button-group">
+      <div class="button-group centered">
         <button @click="showCreationForm">Créer un Questionnaire</button>
         <button v-if="selectedQuestionnaires.length >= 2" @click="confirmDeleteSelectedQuestionnaires">Supprimer sélectionnés</button>
       </div>
@@ -235,6 +235,10 @@ header {
   margin-bottom: 10px;
 }
 
+.button-group.centered {
+  justify-content: center;
+}
+
 button {
   background: linear-gradient(135deg, #6e8efb, #a777e3);
   border: none;
@@ -249,6 +253,18 @@ button {
 
 button:hover {
   background-color: #b48ac6;
+}
+
+input[type="text"] {
+  padding: 10px;
+  margin-top: 10px;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+input[type="checkbox"] {
+  margin-right: 5px;
 }
 
 .table-container {
@@ -279,22 +295,6 @@ table th, table td {
   background-color: #f9f9f9;
 }
 
-.data-table td button {
-    margin-right: 10px;
-  }
-
-  input[type="text"] {
-  padding: 10px;
-  margin-top: 10px;
-  width: 100%;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-input[type="checkbox"] {
-  margin-right: 5px;
-}
-
 .modal {
   position: fixed;
   top: 0;
@@ -305,6 +305,7 @@ input[type="checkbox"] {
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1000; /* Ensure it is above other components */
 }
 
 .modal-content {
