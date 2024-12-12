@@ -2,7 +2,7 @@
   <div>
     <div v-if="authStore.isAuthenticated" class="top-bar">
     </div>
-
+    </div>
     <!-- Formulaire de connexion -->
     <div v-if="!authStore.isAuthenticated" class="login-container">
       <div class="header">
