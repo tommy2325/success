@@ -12,6 +12,7 @@
 
         <div class="questionnaire-content">
             <div class="question-section">
+                <div class="question-number">Question N°{{ currentQuestion + 1 }}</div>
                 <div class="question">{{ questions[currentQuestion]?.titre }}</div>
                 <div class="answers">
                     <button
@@ -138,6 +139,7 @@ export default {
                 // Calculer et sauvegarder les résultats ici
                 await saveResults();
                 alert("Le questionnaire est bien terminé");
+                history.back(); // Retourner à la page précédente
             }
         };
 
@@ -171,13 +173,14 @@ export default {
                 });
 
                 alert(`Votre score est de ${score}`);
-                router.push({ name: 'Collaborateur' });
+                history.back(); // Retourner à la page précédente
             } catch (error) {
                 console.error("Erreur lors de la sauvegarde des résultats :", error);
             }
         };
 
-        const logout = () => {
+        const logout = async () => {
+            await supabase.auth.signOut();
             router.push({ name: 'Login' });
         };
 
@@ -268,6 +271,12 @@ export default {
 
 .question-section {
     margin: 20px 0;
+}
+
+.question-number {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 10px;
 }
 
 .answers {
